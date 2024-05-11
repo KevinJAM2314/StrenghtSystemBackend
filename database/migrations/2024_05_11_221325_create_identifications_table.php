@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('value');
             $table->foreignId('type_identification_id')->constrained()->onDelete('cascade');
+            $table->foreignId('person_id')->constrained()->onDelete('cascade');
         });
     }
 
