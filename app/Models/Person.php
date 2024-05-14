@@ -40,4 +40,9 @@ class Person extends Model
     {
         return $this->hasMany(Contact::class);
     }
+
+    public function typePerson()
+    {
+        return $this->belongsTo(TypePerson::class);
+    }
 }
