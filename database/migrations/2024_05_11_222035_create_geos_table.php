@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('description');
             $table->foreignId('type_geo_id')->constrained()->onDelete('cascade');
-            $table->foreignId('geo_id')->constrained();
+            $table->foreignId('geo_id')->nullable()->constrained();
         });
     }
 

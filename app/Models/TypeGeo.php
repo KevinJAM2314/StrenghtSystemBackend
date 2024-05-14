@@ -9,6 +9,8 @@ class TypeGeo extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+    
     protected $fillable = [
         'description',
     ];
