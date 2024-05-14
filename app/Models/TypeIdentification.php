@@ -8,4 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class TypeIdentification extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'description'
+    ];
+
+    public function identifications()
+    {
+        return $this->hasMany(Identification::class);
+    }
 }
