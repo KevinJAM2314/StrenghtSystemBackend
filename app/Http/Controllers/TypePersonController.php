@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TypeUser;
+use App\Models\TypePerson;
 use Illuminate\Http\Request;
 
-class TypeUserController extends Controller
+class TypePersonController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class TypeUserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(TypeUser $typeUser)
+    public function show(TypePerson $typePerson)
     {
         //
     }
@@ -42,7 +42,7 @@ class TypeUserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(TypeUser $typeUser)
+    public function edit(TypePerson $typePerson)
     {
         //
     }
@@ -50,7 +50,7 @@ class TypeUserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, TypeUser $typeUser)
+    public function update(Request $request, TypePerson $typePerson)
     {
         //
     }
@@ -58,7 +58,7 @@ class TypeUserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TypeUser $typeUser)
+    public function destroy(TypePerson $typePerson)
     {
         //
     }

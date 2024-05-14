@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('secondName');
             $table->string('firstLastName');
             $table->string('secondLastName');
+            $table->foreignId('type_person_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
