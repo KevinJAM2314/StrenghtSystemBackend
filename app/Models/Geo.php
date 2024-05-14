@@ -14,7 +14,9 @@ class Geo extends Model
         'type_geo_id',
         'geo_id',
     ];
-
+    
+    public $timestamps = false;
+    
     public function geos()
     {
         return $this->hasMany(Geo::class);
