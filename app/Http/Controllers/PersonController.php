@@ -28,7 +28,17 @@ class PersonController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $person = new Person;
+        $person->firstName = $request->firstName;
+        $person->secondName = $request->secondName;
+        $person->firstLastName = $request->firstLastName;
+        $person->secondLastName = $request->secondLastName;
+        $person->save();
+        $data = [
+            'message' => 'User created successfully',
+            'person' => $person
+        ];
+        return response()->json($data);
     }
 
     /**
@@ -36,7 +46,8 @@ class PersonController extends Controller
      */
     public function show(Person $person)
     {
-        //
+        $person = Person::with('contacts')->find($id);
+        return response()->json($person);
     }
 
     /**
