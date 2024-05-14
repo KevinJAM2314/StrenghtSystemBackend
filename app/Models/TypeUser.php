@@ -9,7 +9,8 @@ class TypeUser extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'description',
-    ];
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
 }

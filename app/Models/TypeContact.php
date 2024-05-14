@@ -8,4 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class TypeContact extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'description'
+    ];
+
+    public function contacts()
+    {
+        return $this->hasMany(Contact::class);
+    }
 }

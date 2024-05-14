@@ -9,6 +9,17 @@ class Contact extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'value',
+        'type_contact_id',
+        'person_id',
+    ];
+
+    public function typeContact()
+    {
+        return $this->belongsTo(TypeContact::class);
+    }
+
     public function person()
     {
         return $this->belongsTo(Person::class);
