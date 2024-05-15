@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('userName')->unique();
             $table->string('password');
+            $table->boolean('confirmated')->default(false);
             $table->rememberToken();
             $table->timestamps();
             $table->foreignId('person_id')->constrained()->onDelete('cascade');
