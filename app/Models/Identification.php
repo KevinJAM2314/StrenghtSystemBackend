@@ -15,6 +15,8 @@ class Identification extends Model
         'person_id'  
     ];
 
+    public $timestamps = false;
+
     public function typeIdentification()
     {
         return $this->belongsTo(TypeIdentification::class);

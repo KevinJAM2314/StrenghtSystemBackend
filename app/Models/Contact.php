@@ -14,6 +14,8 @@ class Contact extends Model
         'type_contact_id',
         'person_id',
     ];
+    
+    public $timestamps = false;
 
     public function typeContact()
     {
