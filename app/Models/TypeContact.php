@@ -13,6 +13,8 @@ class TypeContact extends Model
         'description'
     ];
 
+    public $timestamps = false;
+
     public function contacts()
     {
         return $this->hasMany(Contact::class);
