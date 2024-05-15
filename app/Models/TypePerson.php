@@ -9,6 +9,8 @@ class TypePerson extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     public function people()
     {
         return $this->hasMany(Person::class);

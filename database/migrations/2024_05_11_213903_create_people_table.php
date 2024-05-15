@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('people', function (Blueprint $table) {
             $table->id();
             $table->string('firstName');
-            $table->string('secondName');
+            $table->string('secondName')->nullable();
             $table->string('firstLastName');
             $table->string('secondLastName');
             $table->foreignId('type_person_id')->constrained()->onDelete('cascade');

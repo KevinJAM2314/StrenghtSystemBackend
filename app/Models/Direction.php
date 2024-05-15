@@ -15,6 +15,8 @@ class Direction extends Model
         'person_id',
     ];
 
+    public $timestamps = false;
+
     public function geo()
     {
         return $this->belongsTo(Geo::class);
