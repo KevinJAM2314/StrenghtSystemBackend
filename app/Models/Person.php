@@ -14,6 +14,7 @@ class Person extends Model
         'secondName',
         'firstLastName',
         'secondLastName',
+        'type_person_id',
     ];
 
     public function geo()
