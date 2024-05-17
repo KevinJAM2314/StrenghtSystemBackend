@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 class UserController extends Controller
 {
     public function store(Request $request)
-    {   
+    {
         $request->request->add(['user.userName' => Str::slug($request->user['userName'])]);
         try{
             $this->validate($request, [
@@ -40,7 +40,7 @@ class UserController extends Controller
             'person_id' => $person->id
         ]);
 
-        return response()->json(['message' => 'Admin creado correctamente, espera a que te confirmen']); 
+        return response()->json(['message' => 'Admin creado correctamente, espera a que te confirmen']);
     }
 
     public function verify(Request $request)
@@ -51,15 +51,17 @@ class UserController extends Controller
                 'password' => 'required'
             ]);
         } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->validator->errors()]);
+            return response()->json(['errors' => $e->validator->errors()], 422);
         }
 
         $user = User::where('userName', $request->userName)->first();
 
-        if(auth()->attempt($request->only('userName', 'password'), $request->remember) || $user->confirmated){
-            return response()->json(['message' => 'Credenciales correctas', 'userName' => $user->userName]);
+        if ($user && Hash::check($request->password, $user->password)) {
+            // Assuming you are using Laravel Sanctum or a similar package for API tokens
+            $token = $user->createToken('auth_token')->plainTextToken;
+            return response()->json(['message' => 'Credenciales correctas', 'userName' => $user->userName, 'token' => $token]);
         }
 
-        return response()->json(['message' => 'Credenciales incorrectas o la cuenta no esta confirmada']); 
+        return response()->json(['message' => 'Credenciales incorrectas o la cuenta no esta confirmada'], 401);
     }
 }
