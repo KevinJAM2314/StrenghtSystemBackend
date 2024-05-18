@@ -14,6 +14,8 @@ class Person extends Model
         'secondName',
         'firstLastName',
         'secondLastName',
+        'gender',
+        'dateBirth',
         'type_person_id',
     ];
 

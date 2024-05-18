@@ -19,6 +19,8 @@ class UserController extends Controller
                 'person.secondName' => 'max:20',
                 'person.firstLastName' => 'required|max:20',
                 'person.secondLastName' => 'required|max:20',
+                'person.gender' => 'required',
+                'person.dateBirth' => 'before:today',
                 'user.userName' => 'required|unique:users,username|min:3|max:20',
                 'user.password' => 'required|min:6'
             ]);
@@ -31,6 +33,8 @@ class UserController extends Controller
             'secondName' => $request->person['secondName'],
             'firstLastName' => $request->person['firstLastName'],
             'secondLastName' => $request->person['secondLastName'],
+            'gender' => $request->person['gender'],
+            'dateBirth' => $request->person['dateBirth'],
             'type_person_id' => 1
         ]);
 
