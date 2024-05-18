@@ -15,14 +15,14 @@ class UserController extends Controller
         $request->request->add(['user.userName' => Str::slug($request->user['userName'])]);
         try{
             $this->validate($request, [
-                'person.firstName' => 'required|max:20',
-                'person.secondName' => 'max:20',
-                'person.firstLastName' => 'required|max:20',
-                'person.secondLastName' => 'required|max:20',
-                'person.gender' => 'required',
-                'person.dateBirth' => 'before:today',
-                'user.userName' => 'required|unique:users,username|min:3|max:20',
-                'user.password' => 'required|min:6'
+                'person.firstName' => 'required|string|max:20',
+                'person.secondName' => 'max:20|string',
+                'person.firstLastName' => 'required|string|max:20',
+                'person.secondLastName' => 'required|string|max:20',
+                'person.gender' => 'required|boolean',
+                'person.dateBirth' => 'date|before:today',
+                'user.userName' => 'required|string|unique:users,username|min:3|max:20',
+                'user.password' => 'required|string|min:6'
             ]);
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->validator->errors()]);

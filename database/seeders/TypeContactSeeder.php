@@ -18,11 +18,7 @@ class TypeContactSeeder extends Seeder
         ]);
 
         TypeContact::create([
-            'description' => 'Teléfono de Casa'
-        ]);
-
-        TypeContact::create([
-            'description' => 'Celular'
+            'description' => 'Teléfono'
         ]);
     }
 }
