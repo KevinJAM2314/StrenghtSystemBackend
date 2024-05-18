@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ClientController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,3 +22,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/users/login', [UserController::class, 'verify']);
 Route::post('/users', [UserController::class, 'store']);
+
+Route::get('/clients/create', [ClientController::class, 'create']); // Cuando se llama el formulario
+Route::post('/clients', [ClientController::class, 'store']);
+Route::delete('/clients/{id}', [ClientController::class, 'destroy']);
