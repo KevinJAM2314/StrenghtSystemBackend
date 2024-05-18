@@ -13,6 +13,17 @@ use Illuminate\Http\Request;
 
 class ClientController extends Controller
 {
+    public function index()
+    {
+        $data = Person::where('type_person_id', 2)
+                ->with(['contacts' => function ($query) {
+                    $query->where('type_contact_id', 1);
+                }])
+                ->get();
+
+        return response()->json(['data' => $data]);
+    }
+
     public function create()
     {
         $typeGeos = TypeGeo::select('description')->get();
@@ -22,6 +33,15 @@ class ClientController extends Controller
 
         return response()->json(['typeGeos' => $typeGeos, 'typeContacts' => $typeContacts, 'provinces' => $provinces]); 
 
+    }
+
+    public function show()
+    {
+        $data = Person::where('type_person_id', 2)
+                        ->with('contacts', 'directions')
+                        ->get();
+        
+        return response()->json(['data' => $data]);
     }
 
     public function store(Request $request)
