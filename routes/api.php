@@ -23,7 +23,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/users/login', [UserController::class, 'verify']);
 Route::post('/users', [UserController::class, 'store']);
 
+Route::get('/clients', [ClientController::class, 'index']);
 Route::get('/clients/create', [ClientController::class, 'create']); // Cuando se llama el formulario
+
 Route::post('/clients', [ClientController::class, 'store']);
 Route::delete('/clients/{id}', [ClientController::class, 'destroy']);
 Route::put('/clients/{id}', [ClientController::class, 'update']);
