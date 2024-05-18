@@ -28,3 +28,4 @@ Route::get('/clients/create', [ClientController::class, 'create']); // Cuando se
 
 Route::post('/clients', [ClientController::class, 'store']);
 Route::delete('/clients/{id}', [ClientController::class, 'destroy']);
+Route::put('/clients/{id}', [ClientController::class, 'update']);
