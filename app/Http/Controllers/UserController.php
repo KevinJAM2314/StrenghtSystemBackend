@@ -56,10 +56,16 @@ class UserController extends Controller
 
         $user = User::where('userName', $request->userName)->first();
 
-        if(auth()->attempt($request->only('userName', 'password'), $request->remember) || $user->confirmated){
-            return response()->json(['message' => 'Credenciales correctas', 'userName' => $user->userName]);
+        if (auth()->attempt($request->only('userName', 'password'), $request->remember) || $user->confirmated) {
+            $token = $user->createToken('auth_token')->plainTextToken;
+            return response()->json([
+                'message' => 'Credenciales correctas',
+                'userName' => $user->userName,
+                'token' => $token
+            ]);
+        } else {
+            return response()->json(['message' => 'La cuenta no está confirmada'], 401);
         }
-
         return response()->json(['message' => 'Credenciales incorrectas o la cuenta no esta confirmada']); 
     }
 }
