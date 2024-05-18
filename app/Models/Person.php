@@ -34,11 +34,6 @@ class Person extends Model
         return $this->hasMany(User::class);
     }
 
-    public function identifications()
-    {
-        return $this->hasMany(Identification::class);
-    }
-
     public function contacts()
     {
         return $this->hasMany(Contact::class);
