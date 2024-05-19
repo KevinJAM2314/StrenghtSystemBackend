@@ -27,9 +27,9 @@ class ClientController extends Controller
     public function create()
     {
         $typeGeos = TypeGeo::select('description')->get();
-        $typeContacts = TypeContact::select('description')->get();
+        $typeContacts = TypeContact::select('id', 'description')->get();
 
-        $provinces = Geo::where('geo_id', null)->get();
+        $provinces = Geo::where('geo_id', null)->select('id', 'description')->get();
 
         return response()->json(['typeGeos' => $typeGeos, 'typeContacts' => $typeContacts, 'provinces' => $provinces]); 
 
