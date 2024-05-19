@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\GeoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,16 +17,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
+// User - admin
 Route::get('/users/login', [UserController::class, 'verify']);
 Route::post('/users', [UserController::class, 'store']);
 
+// Client
 Route::get('/clients', [ClientController::class, 'index']);
 Route::get('/clients/create', [ClientController::class, 'create']); // Cuando se llama el formulario
-
 Route::post('/clients', [ClientController::class, 'store']);
 Route::delete('/clients/{id}', [ClientController::class, 'destroy']);
 Route::put('/clients/{id}', [ClientController::class, 'update']);
+
+// Geo
+Route::get('/geos', [GeoController::class, 'index']); 
