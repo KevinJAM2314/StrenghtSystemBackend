@@ -8,6 +8,7 @@ use App\Models\Geo;
 use App\Models\TypeGeo;
 use App\Models\Direction;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 use Illuminate\Http\Request;
 
@@ -15,13 +16,15 @@ class ClientController extends Controller
 {
     public function index()
     {
-        $data = Person::where('type_person_id', 2)
+        $clients = Person::where('type_person_id', 2)
                 ->with(['contacts' => function ($query) {
                     $query->where('type_contact_id', 1);
                 }])
                 ->get();
+        
+        $typeContacts = TypeContact::select('id', 'description')->get();
 
-        return response()->json(['data' => $data]);
+        return response()->json(['clients' => $clients, 'typeContacts' => $typeContacts]);
     }
 
     public function create()
@@ -35,13 +38,34 @@ class ClientController extends Controller
 
     }
 
-    public function show()
+    public function show(Request $request)
     {
-        $data = Person::where('type_person_id', 2)
-                        ->with('contacts', 'directions')
-                        ->get();
-        
-        return response()->json(['data' => $data]);
+        $client = Person::where('id', $request->id)
+                        ->where('type_person_id', 2)
+                        ->select([
+                            'id',
+                            DB::raw("CONCAT(firstName, ' ', secondName) AS name"),
+                            DB::raw("CONCAT(firstLastName, ' ', secondLastName) AS surnames"),
+                        ])
+                        ->with([
+                            'contacts' => function ($query) {
+                                $query->select('id','person_id','value', 'type_contact_id');
+                            },
+                            'directions' => function ($query) {
+                                $query->select('id','person_id','description', 'geo_id');
+                            }
+                        ])
+                        ->first();
+        if ($client->directions) {
+            $district = Geo::where('id', $client->directions[0]->geo_id)->first();
+            $canton = Geo::where('id', $district->geo_id)->first();
+            $province = Geo::where('id', $canton->geo_id)->first();
+            $typeContacts = TypeContact::select('id', 'description')->get();
+
+            return response()->json(['client' => $client, 'province' => $province, 'canton' => $canton, 'district' => $district, 'typeContacts' => $typeContacts ]);    
+        }
+        return response()->json(['client' => $client]);
+
     }
 
     public function store(Request $request)
