@@ -18,12 +18,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 // User - admin
-Route::get('/users/login', [UserController::class, 'verify']);
+Route::post('/users/login', [UserController::class, 'verify']);
 Route::post('/users', [UserController::class, 'store']);
 
 // Client
 Route::get('/clients', [ClientController::class, 'index']);
 Route::get('/clients/create', [ClientController::class, 'create']); // Cuando se llama el formulario
+Route::get('/clients/{id}', [ClientController::class, 'show']);
 Route::post('/clients', [ClientController::class, 'store']);
 Route::delete('/clients/{id}', [ClientController::class, 'destroy']);
 Route::put('/clients/{id}', [ClientController::class, 'update']);
