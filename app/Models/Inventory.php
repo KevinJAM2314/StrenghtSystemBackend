@@ -14,4 +14,14 @@ class Inventory extends Model
         'available',
         'product_id',
     ];
+
+    public function saleDetails()
+    {
+        return $this->hasMany(SaleDetail::class);
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }

@@ -15,5 +15,13 @@ class Sale extends Model
         'person_id',
     ];
 
+    public function person()
+    {
+        return $this->belongsTo(Person::class);
+    }
 
+    public function saleDetails()
+    {
+        return $this->hasMany(SaleDetail::class);
+    }
 }
