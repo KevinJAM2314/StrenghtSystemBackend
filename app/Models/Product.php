@@ -16,4 +16,20 @@ class Product extends Model
     ];
     
     public $timestamps = false;
+
+
+    public function productImage()
+    {
+        return $this->belongsTo(ProductImage::class);
+    }
+
+    public function inventary()
+    {
+        return $this->belongsTo(Inventary::class);
+    }
+
+    public function productXcategories()
+    {
+        return $this->hasMany(ProductXCategory::class);
+    }
 }

@@ -15,4 +15,9 @@ class Category extends Model
     ];
     
     public $timestamps = false;
+
+    public function productXcategories()
+    {
+        return $this->hasMany(ProductXCategory::class);
+    }
 }
