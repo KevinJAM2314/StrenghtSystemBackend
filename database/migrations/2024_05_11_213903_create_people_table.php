@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('firstName');
             $table->string('secondName')->nullable();
             $table->string('firstLastName');
-            $table->string('secondLastName');
+            $table->string('secondLastName')->nullable();
             $table->boolean('gender');
             $table->date('dateBirth')->nullable();
             $table->foreignId('type_person_id')->constrained()->onDelete('cascade');

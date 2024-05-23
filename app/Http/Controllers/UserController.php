@@ -16,11 +16,11 @@ class UserController extends Controller
         try{
             $this->validate($request, [
                 'person.firstName' => 'required|string|max:20',
-                'person.secondName' => 'max:20|string',
+                'person.secondName' => 'max:20',
                 'person.firstLastName' => 'required|string|max:20',
-                'person.secondLastName' => 'required|string|max:20',
+                'person.secondLastName' => 'max:20',
                 'person.gender' => 'required|boolean',
-                'person.dateBirth' => 'date|before:today',
+                'person.dateBirth' => 'date|before:today',  
                 'user.userName' => 'required|string|unique:users,username|min:3|max:20',
                 'user.password' => 'required|string|min:6'
             ]);
@@ -30,11 +30,11 @@ class UserController extends Controller
 
         $person = Person::create([
             'firstName' => $request->person['firstName'],
-            'secondName' => $request->person['secondName'],
+            'secondName' => $request->person['secondName'] ?? null,
             'firstLastName' => $request->person['firstLastName'],
-            'secondLastName' => $request->person['secondLastName'],
+            'secondLastName' => $request->person['secondLastName'] ?? null,
             'gender' => $request->person['gender'],
-            'dateBirth' => $request->person['dateBirth'],
+            'dateBirth' => $request->person['dateBirth'] ?? null,
             'type_person_id' => 1
         ]);
 
