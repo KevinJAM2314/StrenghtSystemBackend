@@ -17,11 +17,6 @@ class ClientController extends Controller
     public function index()
     {
         $clients = Person::where('type_person_id', 2)
-                ->select([
-                    'id',
-                    DB::raw("CONCAT(firstName, ' ', secondName) AS name"),
-                    DB::raw("CONCAT(firstLastName, ' ', secondLastName) AS surnames"),
-                ])
                 ->with(['contacts' => function ($query) {
                     $query->where('type_contact_id', 1);
                 }])
