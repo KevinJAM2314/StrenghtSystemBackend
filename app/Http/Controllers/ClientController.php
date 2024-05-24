@@ -17,6 +17,11 @@ class ClientController extends Controller
     public function index()
     {
         $clients = Person::where('type_person_id', 2)
+                ->select([
+                    'id',
+                    DB::raw("CONCAT(firstName, ' ', secondName) AS name"),
+                    DB::raw("CONCAT(firstLastName, ' ', secondLastName) AS surnames"),
+                ])
                 ->with(['contacts' => function ($query) {
                     $query->where('type_contact_id', 1);
                 }])
@@ -29,12 +34,11 @@ class ClientController extends Controller
 
     public function create()
     {
-        $typeGeos = TypeGeo::select('description')->get();
         $typeContacts = TypeContact::select('id', 'description')->get();
 
         $provinces = Geo::where('geo_id', null)->select('id', 'description')->get();
 
-        return response()->json(['typeGeos' => $typeGeos, 'typeContacts' => $typeContacts, 'provinces' => $provinces]); 
+        return response()->json(['typeContacts' => $typeContacts, 'provinces' => $provinces]); 
 
     }
 
@@ -42,11 +46,6 @@ class ClientController extends Controller
     {
         $client = Person::where('id', $request->id)
                         ->where('type_person_id', 2)
-                        ->select([
-                            'id',
-                            DB::raw("CONCAT(firstName, ' ', secondName) AS name"),
-                            DB::raw("CONCAT(firstLastName, ' ', secondLastName) AS surnames"),
-                        ])
                         ->with([
                             'contacts' => function ($query) {
                                 $query->select('id','person_id','value', 'type_contact_id');
@@ -60,12 +59,10 @@ class ClientController extends Controller
             $district = Geo::where('id', $client->directions[0]->geo_id)->first();
             $canton = Geo::where('id', $district->geo_id)->first();
             $province = Geo::where('id', $canton->geo_id)->first();
-            $typeContacts = TypeContact::select('id', 'description')->get();
 
-            return response()->json(['client' => $client, 'province' => $province, 'canton' => $canton, 'district' => $district, 'typeContacts' => $typeContacts ]);    
+            return response()->json(['client' => $client, 'province' => $province, 'canton' => $canton, 'district' => $district]);    
         }
         return response()->json(['client' => $client]);
-
     }
 
     public function store(Request $request)
