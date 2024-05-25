@@ -12,7 +12,7 @@ class Product extends Model
     protected $fillable = [
         'name',
         'description',
-        'money,'
+        'price'
     ];
     
     public $timestamps = false;
@@ -25,7 +25,7 @@ class Product extends Model
 
     public function inventary()
     {
-        return $this->belongsTo(Inventary::class);
+        return $this->belongsTo(Inventory::class);
     }
 
     public function productXcategories()

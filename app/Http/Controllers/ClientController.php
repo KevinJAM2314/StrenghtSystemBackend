@@ -5,10 +5,8 @@ use App\Models\Person;
 use App\Models\Contact;
 use App\Models\TypeContact;
 use App\Models\Geo;
-use App\Models\TypeGeo;
 use App\Models\Direction;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\DB;
 
 use Illuminate\Http\Request;
 
