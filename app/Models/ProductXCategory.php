@@ -14,6 +14,8 @@ class ProductXCategory extends Model
         'category_id'
     ];
 
+    public $timestamps = false;
+
     public function product()
     {
         return $this->belongsTo(Product::class);

@@ -28,7 +28,7 @@ class Product extends Model
         return $this->belongsTo(Inventory::class);
     }
 
-    public function productXcategories()
+    public function productXCategory()
     {
         return $this->hasMany(ProductXCategory::class);
     }
