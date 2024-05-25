@@ -12,16 +12,11 @@ class Product extends Model
     protected $fillable = [
         'name',
         'description',
-        'price'
+        'price',
+        'image',
     ];
     
     public $timestamps = false;
-
-
-    public function productImage()
-    {
-        return $this->belongsTo(ProductImage::class);
-    }
 
     public function inventary()
     {

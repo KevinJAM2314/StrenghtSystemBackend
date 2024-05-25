@@ -32,16 +32,20 @@ class ProductController extends Controller
                 'name' => 'required|string|max:20',
                 'description' => 'required|string|max:100',
                 'price' => 'required|numeric|between:100,99999',
-                'category_id' => 'required|integer'
+                'category_id' => 'required|integer',
+                'image' => 'required|image',
             ]);
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->validator->errors()]);
         }
 
+        $image_path = $request->image->store('public/products');
+        
         $product = Product::create([
             'name' => $request->name,
             'description' => $request->description,
             'price' => $request->price,
+            'image' => $image_path,
         ]);
 
         ProductXCategory::create([
