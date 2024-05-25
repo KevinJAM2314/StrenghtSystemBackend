@@ -13,7 +13,7 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = Product::with(['productXCategory', 'category'])->get();
+        $products = Product::with(['productXCategory.category'])->get();
 
         return response()->json(['products' => $products]);
     }
@@ -31,7 +31,7 @@ class ProductController extends Controller
             $request->validate([
                 'name' => 'required|string|max:20',
                 'description' => 'required|string|max:100',
-                'price' => 'required|decimal:100,99999',
+                'price' => 'required|numeric|between:100,99999',
                 'category_id' => 'required|integer'
             ]);
         } catch (ValidationException $e) {
@@ -44,7 +44,7 @@ class ProductController extends Controller
             'price' => $request->price,
         ]);
 
-        ProductXCategory::created([
+        ProductXCategory::create([
             'product_id' => $product->id,
             'category_id' => $request->category_id
         ]);
@@ -58,7 +58,7 @@ class ProductController extends Controller
             $request->validate([
                 'name' => 'required|string|max:20',
                 'description' => 'required|string|max:100',
-                'price' => 'required|decimal:100,99999',
+                'price' => 'required|numeric|between:100,99999',
                 'category_id_new' => 'required|integer',
                 'category_id_old' => 'required|integer',
             ]);

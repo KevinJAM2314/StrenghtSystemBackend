@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $categories = Category::all();
@@ -17,9 +15,6 @@ class CategoryController extends Controller
         return response()->json(['categories' => $categories]); 
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         try{
@@ -31,7 +26,7 @@ class CategoryController extends Controller
             return response()->json(['errors' => $e->validator->errors()]);
         }
 
-        $category = Category::create([
+        Category::create([
             'name' => $request->name,
             'duration' => $request->duration ?? null,
         ]);
@@ -39,9 +34,6 @@ class CategoryController extends Controller
         return response()->json(['message' => 'Categoria creada correctamente']); 
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Request $request)
     {
         $category = Category::where('id', $request->id)->select('id', 'name', 'duration')->get();
@@ -49,9 +41,6 @@ class CategoryController extends Controller
         return response()->json(['category' => $category]); 
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request)
     {
         try{
