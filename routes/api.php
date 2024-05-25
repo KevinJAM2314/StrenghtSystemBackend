@@ -3,6 +3,7 @@
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\GeoController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,3 +32,9 @@ Route::put('/clients/{id}', [ClientController::class, 'update']);
 
 // Geo
 Route::get('/geos', [GeoController::class, 'index']); 
+
+//Product
+Route::get('/products', [ProductController::class, 'index']);
+Route::post('/products', [ProductController::class, 'store']);
+Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+Route::put('/products/{id}', [ProductController::class, 'update']);
