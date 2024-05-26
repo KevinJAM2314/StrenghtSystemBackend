@@ -7,6 +7,8 @@ use App\Models\Category;
 use App\Models\ProductXCategory;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -14,6 +16,11 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::with(['productXCategory.category'])->get();
+
+        // Ocultar el atributo de la imagen de cada producto
+        $products->each(function ($product) {
+            $product->makeHidden(['image']);
+        });
 
         return response()->json(['products' => $products]);
     }
@@ -38,14 +45,14 @@ class ProductController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->validator->errors()]);
         }
-
-        $image_path = $request->image->store('public/products');
         
+        $image_name = $this->saveImage($request->image);
+
         $product = Product::create([
             'name' => $request->name,
             'description' => $request->description,
             'price' => $request->price,
-            'image' => $image_path,
+            'image' => $image_name,
         ]);
 
         ProductXCategory::create([
@@ -56,7 +63,7 @@ class ProductController extends Controller
         return response()->json(['message' => 'Producto creado']);
     }
 
-    public function update(Request $request, Product $product)
+    public function update(Request $request)
     {
         try{
             $request->validate([
@@ -76,10 +83,18 @@ class ProductController extends Controller
             return response()->json(['error' => 'Product no encontrado'], 404);
         }
 
+        $image_name = null;
+        if($request->image)
+        {
+            $this->destroyImage($product->image);
+            $image_name = $this->saveImage($request->image);
+        }
+
         $product->update([
             'name' => $request->name,
             'description' => $request->description,
-            'price' => $request->price
+            'price' => $request->price,
+            'image' => $image_name ?? $product->image
         ]);
 
         $productXcategory = ProductXCategory::where('product_id', $product->id)->where('category_id', $request->category_id_old);
@@ -91,11 +106,31 @@ class ProductController extends Controller
     }
 
     public function destroy(Request $request)
-    {
-        if(Product::find($request->id)){
-            Product::destroy($request->id);
+    {   
+        $product = Product::find($request->id);
+        if($product){
+
+            $this->destroyImage($product->image);
+
+            $product->delete();
             return response()->json(['message' => 'Producto eliminado con exito']); 
         }
         return response()->json(['message' => 'Producto no encontrado']); 
+    }
+
+    private function saveImage($image)
+    {
+        $image_name = Str::uuid() . "." . $image->extension();
+        $image->storeAs('public/products', $image_name);
+
+        return $image_name;
+    }
+
+    private function destroyImage($image)
+    {
+        $image_path = public_path('storage/products/' . $image);
+        if(File::exists($image_path)){
+            unlink($image_path); // elimina archivo
+        }
     }
 }
