@@ -60,7 +60,7 @@ class ProductController extends Controller
             'category_id' => $request->category_id
         ]);
 
-        return response()->json(['message' => 'Producto creado']);
+        return response()->json(['message' => 'Producto creado'], 201);
     }
 
     public function update(Request $request)
@@ -113,7 +113,7 @@ class ProductController extends Controller
             $this->destroyImage($product->image);
 
             $product->delete();
-            return response()->json(['message' => 'Producto eliminado con exito']); 
+            return response()->json(['message' => 'Producto eliminado con exito'], 204); 
         }
         return response()->json(['message' => 'Producto no encontrado']); 
     }

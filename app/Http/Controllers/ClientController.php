@@ -22,7 +22,7 @@ class ClientController extends Controller
         
         $typeContacts = TypeContact::select('id', 'description')->get();
 
-        return response()->json(['clients' => $clients, 'typeContacts' => $typeContacts]);
+        return response()->json(['clients' => $clients, 'typeContacts' => $typeContacts], 200);
     }
 
     public function create()
@@ -63,11 +63,11 @@ class ClientController extends Controller
         try{
             $request->validate([
                 'person.firstName' => 'required|string|max:20',
-                'person.secondName' => 'max:20|string',
+                'person.secondName' => 'nullable|max:20|string',
                 'person.firstLastName' => 'required|string|max:20',
-                'person.secondLastName' => 'required|string|max:20',
+                'person.secondLastName' => 'nullable|string|max:20',
                 'person.gender' => 'required|boolean',
-                'person.dateBirth' => 'date|before:today',
+                'person.dateBirth' => 'nullable|date|before:today',
                 'contacts' => 'required|array',
                 'contacts.*.value' => 'required|string|max:30',
                 'contacts.*.type_contact_id' => 'required|exists:type_contacts,id',
@@ -103,7 +103,7 @@ class ClientController extends Controller
             'person_id' => $client->id
         ]);
 
-        return response()->json(['message' => 'Cliente creado correctamente']); 
+        return response()->json(['message' => 'Cliente creado correctamente'], 201); 
     }
 
     public function update(Request $request)
@@ -111,11 +111,11 @@ class ClientController extends Controller
         try{
             $request->validate([
                 'person.firstName' => 'required|string|max:20',
-                'person.secondName' => 'max:20|string',
+                'person.secondName' => 'nullable|max:20|string',
                 'person.firstLastName' => 'required|string|max:20',
-                'person.secondLastName' => 'required|string|max:20',
+                'person.secondLastName' => 'nullable|string|max:20',
                 'person.gender' => 'required|boolean',
-                'person.dateBirth' => 'date|before:today',
+                'person.dateBirth' => 'nullable|date|before:today',
                 'contacts' => 'required|array',
                 'contacts.*.value' => 'required|string|max:30',
                 'contacts.*.type_contact_id' => 'required|exists:type_contacts,id',
@@ -163,7 +163,7 @@ class ClientController extends Controller
     {   
         if(Person::find($request->id)){
             Person::destroy($request->id);
-            return response()->json(['message' => 'Cliente eliminado con exito']); 
+            return response()->json(['message' => 'Cliente eliminado con exito'], 204); 
         }
         return response()->json(['message' => 'Cliente no encontrado']); 
     }

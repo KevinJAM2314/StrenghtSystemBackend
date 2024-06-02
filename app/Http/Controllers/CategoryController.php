@@ -20,7 +20,7 @@ class CategoryController extends Controller
         try{
             $request->validate([
                 'name' => 'required|string|max:20',
-                'duration' => 'integer',
+                'duration' => 'nullable|integer',
             ]);
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->validator->errors()]);
@@ -31,7 +31,7 @@ class CategoryController extends Controller
             'duration' => $request->duration ?? null,
         ]);
 
-        return response()->json(['message' => 'Categoria creada correctamente']); 
+        return response()->json(['message' => 'Categoria creada correctamente'], 201); 
     }
 
     public function show(Request $request)
@@ -73,7 +73,7 @@ class CategoryController extends Controller
     {
         if(Category::find($request->id)){
             Category::destroy($request->id);
-            return response()->json(['message' => 'Categoria eliminada con exito']); 
+            return response()->json(['message' => 'Categoria eliminada con exito'], 204); 
         }
         return response()->json(['message' => 'Categoria no encontrada']); 
     }

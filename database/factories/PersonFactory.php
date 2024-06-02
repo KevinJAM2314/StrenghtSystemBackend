@@ -7,10 +7,6 @@ use App\Models\Person;
 use App\Models\Direction;
 use App\Models\Contact;
 
-
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Person>
- */
 class PersonFactory extends Factory
 {
     /**
@@ -20,8 +16,7 @@ class PersonFactory extends Factory
      */
     public function definition($typePersonId = null)
     {
-       // Crea una nueva persona
-        $person = Person::create([
+        return [
             'firstName' => $this->faker->firstName,
             'secondName' => $this->faker->optional()->firstName,
             'firstLastName' => $this->faker->lastName,
@@ -29,26 +24,22 @@ class PersonFactory extends Factory
             'gender' => $this->faker->randomElement([0, 1]), 
             'dateBirth' => $this->faker->optional()->date(),
             'type_person_id' => $typePersonId ?? 2 
-        ]);
-
-        // Crea una dirección asociada a la persona
-        $direction = Direction::factory()->create([
-            'person_id' => $person->id,
-        ]);
-
-        // Crea un contacto asociado a la persona
-        $contact = Contact::factory()->create([
-            'person_id' => $person->id,
-        ]);
-
-        return [
-            'firstName' => $person->firstName,
-            'secondName' => $person->secondName,
-            'firstLastName' => $person->firstLastName,
-            'secondLastName' => $person->secondLastName,
-            'gender' => $person->gender,
-            'dateBirth' => $person->dateBirth,
-            'type_person_id' => $person->type_person_id,
         ];
+    }
+
+    /**
+     * After creating the person, assign address and contact.
+     *
+     * @return $this
+     */
+    public function configure()
+    {
+        return $this->afterCreating(function (Person $person) {
+            // Create an associated address for the person
+            $person->directions()->save(Direction::factory()->make());
+            
+            // Create an associated contact for the person
+            $person->contacts()->save(Contact::factory()->make());
+        });
     }
 }

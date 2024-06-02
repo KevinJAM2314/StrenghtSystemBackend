@@ -16,11 +16,11 @@ class UserController extends Controller
         try{
             $this->validate($request, [
                 'person.firstName' => 'required|string|max:20',
-                'person.secondName' => 'max:20',
+                'person.secondName' => 'nullable|max:20',
                 'person.firstLastName' => 'required|string|max:20',
-                'person.secondLastName' => 'max:20',
+                'person.secondLastName' => 'nullable|max:20',
                 'person.gender' => 'required|boolean',
-                'person.dateBirth' => 'date|before:today',  
+                'person.dateBirth' => 'nullable|date|before:today',  
                 'user.userName' => 'required|string|unique:users,username|min:3|max:20',
                 'user.password' => 'required|string|min:6'
             ]);
@@ -44,7 +44,7 @@ class UserController extends Controller
             'person_id' => $person->id
         ]);
 
-        return response()->json(['message' => 'Admin creado correctamente, espera a que te confirmen']); 
+        return response()->json(['message' => 'Admin creado correctamente, espera a que te confirmen'], 201); 
     }
 
     public function verify(Request $request)
