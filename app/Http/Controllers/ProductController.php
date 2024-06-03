@@ -130,7 +130,7 @@ class ProductController extends Controller
     {
         $image_path = public_path('storage/products/' . $image);
         if(File::exists($image_path)){
-            unlink($image_path); // elimina archivo
+            unlink($image_path);
         }
     }
 }
