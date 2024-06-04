@@ -60,7 +60,7 @@ class ProductController extends Controller
             'category_id' => $request->category_id
         ]);
 
-        return response()->json(['message' => 'Producto creado'], 201);
+        return response()->json(['message' => 'Producto creado', $product], 201);
     }
 
     public function update(Request $request)
@@ -74,7 +74,7 @@ class ProductController extends Controller
                 'category_id_old' => 'required|integer',
             ]);
         } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->validator->errors()]);
+            return response()->json(['errors' => $e->validator->errors()], 422);
         }
 
         $product = Product::find($request->id);
@@ -102,7 +102,7 @@ class ProductController extends Controller
             'category_id' => $request->category_id_new
         ]);
 
-        return response()->json(['message' => 'Producto actualizado']);        
+        return response()->json(['message' => 'Producto actualizado'],200);        
     }
 
     public function destroy(Request $request)
