@@ -50,7 +50,7 @@ class ClientTest extends TestCase
 
     private function last_id()
     {   
-        $lastPerson = Person::latest()->value('id');
+        $lastPerson = Person::max('id');
         return $lastPerson;
     }
 

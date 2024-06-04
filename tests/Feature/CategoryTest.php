@@ -47,7 +47,7 @@ class CategoryTest extends TestCase
 
     private function last_id()
     {   
-        $lastCategory = Category::value('id');
+        $lastCategory = Category::max('id');
         return $lastCategory;
     }
 
