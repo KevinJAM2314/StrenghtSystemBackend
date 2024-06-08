@@ -4,62 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\InventoryXProduct;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class InventoryXProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(InventoryXProduct $inventoryXProduct)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(InventoryXProduct $inventoryXProduct)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, InventoryXProduct $inventoryXProduct)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(InventoryXProduct $inventoryXProduct)
-    {
-        //
+        try {
+            InventoryXProduct::create([
+                'quantity' => $request->quantity,
+                'available' => $request->available,
+                'product_id' => $request->product_id,
+                'inventory_id' => 1
+            ]);
+            return response()->json(['message' => 'Relación inventario-producto creada correctamente']);
+        } catch (\Exception $e) {
+            throw new \Exception('Error al crear la relación inventario-producto:');
+        }
     }
 }

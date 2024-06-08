@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\ProductXCategory;
+use App\Http\Controllers\InventoryXProductController;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -41,26 +43,53 @@ class ProductController extends Controller
                 'price' => 'required|numeric|between:100,99999',
                 'category_id' => 'required|integer',
                 'image' => 'required|image',
+                'quantity' => 'required|integer|min:1',
+                'available' => 'required|boolean'
             ]);
-        } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->validator->errors()]);
-        }
+
+            // Iniciar una transacción
+            DB::beginTransaction();
+
+            
+            $image_name = $this->saveImage($request->image);
+
+            $product = Product::create([
+                'name' => $request->name,
+                'description' => $request->description,
+                'price' => $request->price,
+                'image' => $image_name,
+            ]);
+
+            ////
+            $requestPC = new Request([
+                'product_id' => $product->id, 
+                'category_id' => $request->category_id
+            ]);
+
+            $productXCategoryController = app(ProductXCategoryController::class);
+            $productXCategoryController->store($requestPC);
+
+            ///
+            $requestIP = new Request([
+                'quantity' => $request->quantity, 
+                'available' => $request->available, 
+                'product_id' => $product->id
+            ]);
+
+            $inventoryController = app(InventoryXProductController::class);
+            $inventoryController->store($requestIP);
+
+            // Commit si todas las operaciones fueron exitosas
+            DB::commit();
         
-        $image_name = $this->saveImage($request->image);
+            return response()->json(['message' => 'Producto creado', $product], 201);
 
-        $product = Product::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'price' => $request->price,
-            'image' => $image_name,
-        ]);
+        } catch (ValidationException $e) {
+            DB::rollBack();
 
-        ProductXCategory::create([
-            'product_id' => $product->id,
-            'category_id' => $request->category_id
-        ]);
+            return response()->json(['error' => 'Error al crear el producto: ' . $e->getMessage()], 500);
+        }
 
-        return response()->json(['message' => 'Producto creado', $product], 201);
     }
 
     public function update(Request $request)
