@@ -13,8 +13,9 @@ class SaleDetail extends Model
         'quantity',
         'total',
         'sale_id',
-        'inventory_id',
+        'inventory_x_products_id',
     ];
+    public $timestamps = false;
 
     public function sale()
     {
