@@ -9,10 +9,10 @@ class Inventory extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+    
     protected $fillable = [
-        'quantity',
-        'available',
-        'product_id',
+        'name'
     ];
 
     public function saleDetails()
@@ -20,8 +20,4 @@ class Inventory extends Model
         return $this->hasMany(SaleDetail::class);
     }
 
-    public function products()
-    {
-        return $this->hasMany(Product::class);
-    }
 }
