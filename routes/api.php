@@ -5,6 +5,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\GeoController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SaleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -48,3 +49,10 @@ Route::post('/products', [ProductController::class, 'store']);
 Route::delete('/products/{id}', [ProductController::class, 'destroy']);
 Route::post('/products/{id}', [ProductController::class, 'update']);
 
+//Sale
+Route::post('/sales', [SaleController::class, 'store']);
+Route::get('/sales', [SaleController::class, 'index']);
+Route::get('/sales/create', [SaleController::class, 'create']);
+Route::get('/sales/{id}', [SaleController::class, 'show']);
+Route::put('/sales/{id}', [SaleController::class, 'update']);
+Route::delete('/sales/{id}', [SaleController::class, 'destroy']);
