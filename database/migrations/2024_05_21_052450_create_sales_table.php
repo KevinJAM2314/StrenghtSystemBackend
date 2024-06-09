@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
-            $table->date('saleDate');
             $table->decimal('totalAmount', 8, 2);
             $table->timestamps();
             $table->foreignId('person_id')->constrained();
