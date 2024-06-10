@@ -49,7 +49,6 @@ class ProductController extends Controller
 
             // Iniciar una transacción
             DB::beginTransaction();
-
             
             $image_name = $this->saveImage($request->image);
 
@@ -108,7 +107,8 @@ class ProductController extends Controller
 
         $product = Product::find($request->id);
 
-        if (!$product) {
+        if (!$product)
+        {
             return response()->json(['error' => 'Product no encontrado'], 404);
         }
 
@@ -137,7 +137,8 @@ class ProductController extends Controller
     public function destroy(Request $request)
     {   
         $product = Product::find($request->id);
-        if($product){
+        if($product)
+        {
 
             $this->destroyImage($product->image);
 
@@ -158,7 +159,8 @@ class ProductController extends Controller
     private function destroyImage($image)
     {
         $image_path = public_path('storage/products/' . $image);
-        if(File::exists($image_path)){
+        if(File::exists($image_path))
+        {
             unlink($image_path);
         }
     }

@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SaleDetail;
+use App\Models\Product;
+use App\Models\InventoryXProduct;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class SaleDetailController extends Controller
 {
@@ -11,50 +15,100 @@ class SaleDetailController extends Controller
         try{
             $request->validate([
                 'quantity' => 'required|integer',
-                'total' => 'required|numeric|between:100,999999',
-                'sale_id' => 'required|exists:sales,id',
+                'sale_id' => 'required',
                 'inventory_x_products_id' => 'required|exists:inventory_x_products,id'
             ]);
-        } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->validator->errors()]);
-        }
 
-        SaleDetail::create([
-            'total' => $request->total,
-            'quantity' => $request->quantity,
-            'sale_id' => $request->sale_id,
-            'inventory_x_products_id' => $request->inventory_x_products_id
-        ]);
-        
-        return response()->json(['message' => 'Detalles Venta registrada correctamente'], 201); 
+            $inventoryXProduct = InventoryXProduct::findOrFail($request->inventory_x_products_id);
+
+            if(!$inventoryXProduct->validateQuantity($request->quantity)){
+                throw new \Exception("La cantidad no es suficiente.");   
+            }
+
+            $saleDetail = SaleDetail::create([
+                'total' => $this->calculateTotal($inventoryXProduct, $request->quantity),
+                'quantity' => $request->quantity,
+                'sale_id' => $request->sale_id,
+                'inventory_x_products_id' => $request->inventory_x_products_id
+            ]);
+            
+            $inventoryXProduct->update([
+                'quantity' => $inventoryXProduct->quantity - $saleDetail->quantity
+            ]);
+
+            return $saleDetail->total; 
+        } catch (ValidationException $e) {
+            throw new \Exception('Error al crear la relación detalle venta' . $e->validator->errors() . $request);
+        }
     }
 
     public function update(Request $request)
     {
+        // return response()->json(['message' => $request->all()]); 
         try{
             $request->validate([
+                'id' => 'required|exists:sale_details,id',
                 'quantity' => 'required|integer',
-                'total' => 'required|numeric|between:100,999999',
                 'sale_id' => 'required|exists:sales,id',
                 'inventory_x_products_id' => 'required|exists:inventory_x_products,id'
             ]);
+
+            $saleDetail = SaleDetail::find($request->id);
+
+            if (!$saleDetail) {
+                throw new \Exception("No se encontro detalle de venta."); 
+            }
+
+            $inventoryXProduct = InventoryXProduct::findOrFail($saleDetail->inventory_x_products_id);
+
+            $quantityOld = $saleDetail->quantity;
+            $inventoryXProduct->update([
+                'quantity' => $inventoryXProduct->quantity + $quantityOld
+            ]);
+
+            $inventoryXProduct = InventoryXProduct::findOrFail($request->inventory_x_products_id);
+            if(!$inventoryXProduct->validateQuantity($request->quantity)){
+                throw new \Exception("La cantidad no es suficiente.");   
+            }
+
+            $saleDetail-> update([
+                'total' => $this->calculateTotal($inventoryXProduct, $request->quantity),
+                'quantity' => $request->quantity,
+                'sale_id' => $request->sale_id,
+                'inventory_x_products_id' => $request->inventory_x_products_id
+            ]);
+
+            $inventoryXProduct->update([
+                'quantity' => $inventoryXProduct->quantity - $saleDetail->quantity
+            ]);
+            
+            return $saleDetail->total; 
         } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->validator->errors()]);
+            throw new \Exception('Error al actualizar la relación detalle venta' . $e->validator->errors() . $request);
         }
+    }
 
+    public function show(Request $request)
+    {
+        $saleDetails = SaleDetail::where('sale_id', $request->sale_id);
+        return $saleDetails;
+    }
+
+    public function destroy (Request $request)
+    {
         $saleDetail = SaleDetail::find($request->id);
-
-        if (!$saleDetail) {
-            return response()->json(['error' => 'Detalle Venta nunca registrado'], 404);
+        if($saleDetail)
+        {
+            $saleDetail->delete();
         }
+        throw new \Exception("No se pudo eliminar el detalle de venta viejo");   
+    }
 
-        $saleDetail-> update([
-            'total' => $request->total,
-            'quantity' => $request->quantity,
-            'sale_id' => $request->sale_id,
-            'inventory_x_products_id' => $request->inventory_x_products_id
-        ]);
-        
-        return response()->json(['message' => 'Detalles Venta actualizado correctamente'], 201); 
+    private function calculateTotal($inventoryXProduct, $quantity)
+    {
+
+        $product = Product::findOrFail($inventoryXProduct->id);
+
+        return $product->calculateTotal($quantity);
     }
 }

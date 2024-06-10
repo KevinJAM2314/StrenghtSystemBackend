@@ -27,4 +27,11 @@ class InventoryXProduct extends Model
     {
         return $this->hasMany(Inventory::class);
     }
+
+    public function validateQuantity($saleQuantity)
+    {
+        $result = $this->quantity - $saleQuantity;
+        return $result >= 0;
+    }
+
 }

@@ -22,8 +22,8 @@ class SaleDetail extends Model
         return $this->belongsTo(Sale::class);
     }
 
-    public function inventory()
+    public function inventoryXProducts()
     {
-        return $this->belongsTo(Inventory::class);
+        return $this->belongsTo(InventoryXProduct::class);
     }
 }

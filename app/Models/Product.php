@@ -24,6 +24,11 @@ class Product extends Model
      {
          return config('app.url') . ':' . request()->getPort() . Storage::url('products/' . $this->image);
      }
+
+    public function calculateTotal($quantity)
+    {
+        return $this->price * $quantity;
+    }
  
     // Para que el Accessor sea incluido en la serialización JSON
     protected $appends = ['image_url'];
