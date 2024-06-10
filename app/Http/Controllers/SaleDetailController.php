@@ -44,7 +44,6 @@ class SaleDetailController extends Controller
 
     public function update(Request $request)
     {
-        // return response()->json(['message' => $request->all()]); 
         try{
             $request->validate([
                 'id' => 'required|exists:sale_details,id',
@@ -59,12 +58,7 @@ class SaleDetailController extends Controller
                 throw new \Exception("No se encontro detalle de venta."); 
             }
 
-            $inventoryXProduct = InventoryXProduct::findOrFail($saleDetail->inventory_x_products_id);
-
-            $quantityOld = $saleDetail->quantity;
-            $inventoryXProduct->update([
-                'quantity' => $inventoryXProduct->quantity + $quantityOld
-            ]);
+            $this->updateInventoryXProduct($saleDetail);
 
             $inventoryXProduct = InventoryXProduct::findOrFail($request->inventory_x_products_id);
             if(!$inventoryXProduct->validateQuantity($request->quantity)){
@@ -88,9 +82,9 @@ class SaleDetailController extends Controller
         }
     }
 
-    public function show(Request $request)
+    public function show()
     {
-        $saleDetails = SaleDetail::where('sale_id', $request->sale_id);
+        $saleDetails = SaleDetail::where('sale_id', 1)->get();
         return $saleDetails;
     }
 
@@ -99,16 +93,27 @@ class SaleDetailController extends Controller
         $saleDetail = SaleDetail::find($request->id);
         if($saleDetail)
         {
+            $this->updateInventoryXProduct($saleDetail);
             $saleDetail->delete();
+            return; 
         }
         throw new \Exception("No se pudo eliminar el detalle de venta viejo");   
     }
 
     private function calculateTotal($inventoryXProduct, $quantity)
     {
-
+        
         $product = Product::findOrFail($inventoryXProduct->id);
 
         return $product->calculateTotal($quantity);
+    }
+
+    private function updateInventoryXProduct($saleDetail)
+    {
+        $inventoryXProduct = InventoryXProduct::findOrFail($saleDetail->inventory_x_products_id);
+        $quantityOld = $saleDetail->quantity;
+        $inventoryXProduct->update([
+            'quantity' => $inventoryXProduct->quantity + $quantityOld
+        ]);
     }
 }

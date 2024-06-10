@@ -151,20 +151,19 @@ class SaleController extends Controller
         };
 
         // Convertir la colección de Eloquent a un array simple
-        $saleDetailsOldArray = $saleDetailsOld->get()->toArray();
+        $saleDetailsOldArray = $saleDetailsOld->toArray();
 
         // Convertir el array de objetos JSON a un array de arrays
-        $saleDetailsNewArray = json_decode(json_encode($request->sale_details), true);
+        $saleDetailsNewArray = $request->sale_details;
 
-        // return response()->json(['saleDetailsOldArray' => $saleDetailsOldArray, 'saleDetailsNewArray' => $saleDetailsNewArray]); 
+
         // Buscar cuales detalles se eliminaron en el front para eliminarlos en el backend
         $destroyDetails = array_udiff($saleDetailsOldArray, $saleDetailsNewArray, $compareById);
-
 
         foreach ($destroyDetails as $detail)
         {
             $saleDetailController->destroy(new Request([
-                'id' => $detail->id
+                'id' => $detail['id']
             ]));
         }
 
