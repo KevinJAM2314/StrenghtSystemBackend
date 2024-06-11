@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Models\Sale;
 use App\Models\Person;
+use App\Models\Product;
 use App\Models\InventoryXProduct;
 use App\Http\Controllers\SaleDetailController;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +15,7 @@ class SaleController extends Controller
 {
     public function index()
     {
-        $sales = Sale::with(['saleDetails.inventoryXProducts.products'])->get();
+        $sales = Sale::with(['saleDetails.inventoryXProducts.product'])->get();
 
         return response()->json(['sales' => $sales]); 
     }
@@ -25,7 +26,8 @@ class SaleController extends Controller
                             ->select('id', 'firstName', 'secondName', 'firstLastName', 'secondLastName')
                             ->get();
 
-        return response()->json(['clients' => $clients]);
+        $products = Product::select('id', 'name', 'price')->get();
+        return response()->json(['clients' => $clients, 'products' => $products]);
     }
     
     public function show(Request $request)

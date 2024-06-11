@@ -33,9 +33,9 @@ class Product extends Model
     // Para que el Accessor sea incluido en la serialización JSON
     protected $appends = ['image_url'];
 
-    public function inventary()
+    public function inventoryXProduct()
     {
-        return $this->belongsTo(Inventory::class);
+        return $this->hasMany(InventoryXProduct::class);
     }
 
     public function productXCategory()

@@ -18,14 +18,14 @@ class InventoryXProduct extends Model
         'inventory_id'
     ];
 
-    public function products()
+    public function product()
     {
-        return $this->hasMany(Product::class);
+        return $this->belongsTo(Product::class);
     }
 
-    public function inventories()
+    public function inventory()
     {
-        return $this->hasMany(Inventory::class);
+        return $this->belongsTo(Inventory::class);
     }
 
     public function validateQuantity($saleQuantity)
