@@ -115,8 +115,7 @@ class SaleController extends Controller
         foreach ($request->sale_details as $detail)
         {
             $inventoryXPproduct = InventoryXProduct::where('product_id', $detail['product_id'])
-                                                        ->where('inventory_id', 1)
-                                                        ->first();
+                                    ->where('inventory_id', 1)->first();
                                                 
             $saleD = new Request([
                 'id' => $detail['id'] ?? null,

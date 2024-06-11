@@ -15,30 +15,10 @@ class ClientController extends Controller
     public function index()
     {
         $clients = Person::where('type_person_id', 2)
-                ->with([
-                    'contacts' => function ($query) {
-                        $query->select('id','person_id','value', 'type_contact_id');
-                    },
-                    'directions' => function ($query) {
-                        $query->select('id','person_id','description', 'geo_id');
-                }])
+                ->with(['contacts','directions.district.canton.province'])
                 ->get();
-
-        $typeContacts = TypeContact::select('id', 'description')->get();
         
-
-        foreach($clients as $client){
-            if ($client->directions) {
-                $district = Geo::where('id', $client->directions[0]->geo_id)->first();
-                $canton = Geo::where('id', $district->geo_id)->first();
-                $province = Geo::where('id', $canton->geo_id)->first();
-
-                $client->district = $district;
-                $client->canton = $canton;
-                $client->province = $province;
-            }
-        }
-        return response()->json(['clients' => $clients, 'typeContacts' => $typeContacts], 200);
+        return response()->json(['clients' => $clients], 200);
     }
 
     public function create()
@@ -55,15 +35,7 @@ class ClientController extends Controller
     {
         $client = Person::where('id', $request->id)
                         ->where('type_person_id', 2)
-                        ->with([
-                            'contacts' => function ($query) {
-                                $query->select('id','person_id','value', 'type_contact_id');
-                            },
-                            'directions' => function ($query) {
-                                $query->select('id','person_id','description', 'geo_id');
-                            }
-                        ])
-                        ->first();
+                        ->with(['contacts','directions.district.canton.province'])->first();
         if ($client->directions) {
             $district = Geo::where('id', $client->directions[0]->geo_id)->first();
             $canton = Geo::where('id', $district->geo_id)->first();

@@ -17,9 +17,10 @@ class Direction extends Model
 
     public $timestamps = false;
 
-    public function geo()
+    
+    public function district()
     {
-        return $this->belongsTo(Geo::class);
+        return $this->belongsTo(Geo::class, 'geo_id');
     }
 
     public function person()

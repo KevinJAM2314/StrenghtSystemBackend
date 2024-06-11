@@ -17,9 +17,14 @@ class Geo extends Model
     
     public $timestamps = false;
     
-    public function geos()
+    public function canton()
     {
-        return $this->hasMany(Geo::class);
+        return $this->belongsTo(Geo::class, 'geo_id');
+    }
+
+    public function province()
+    {
+        return $this->belongsTo(Geo::class, 'geo_id');
     }
 
     public function directions()

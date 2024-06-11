@@ -17,7 +17,7 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = Product::with(['productXCategory.category'])->get();
+        $products = Product::with(['productXCategory.category', 'inventoryXProducts'])->get();
 
         // Ocultar el atributo de la imagen de cada producto
         $products->each(function ($product) {

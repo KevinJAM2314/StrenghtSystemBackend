@@ -19,14 +19,9 @@ class Person extends Model
         'type_person_id',
     ];
 
-    public function geo()
-    {
-        return $this->belongsTo(Geo::class);
-    }
-
     public function directions()
     {
-        return $this->hasMany(Direction::class);
+        return $this->hasMany(Direction::class)->select('id','person_id','description', 'geo_id');
     }
 
     public function users()
@@ -36,7 +31,7 @@ class Person extends Model
 
     public function contacts()
     {
-        return $this->hasMany(Contact::class);
+        return $this->hasMany(Contact::class)->select('id','person_id','value', 'type_contact_id');
     }
 
     public function typePerson()
