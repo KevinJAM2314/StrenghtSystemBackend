@@ -100,38 +100,56 @@ class ProductController extends Controller
                 'price' => 'required|numeric|between:100,99999',
                 'category_id_new' => 'required|integer',
                 'category_id_old' => 'required|integer',
+                'quantity' => 'required|integer|min:1',
+                'available' => 'required|boolean'
             ]);
+
+            DB::beginTransaction();
+            
+            $product = Product::find($request->id);
+
+            if (!$product)
+            {
+                return response()->json(['error' => 'Product no encontrado'], 404);
+            }
+
+            $image_name = null;
+            if($request->image)
+            {
+                $this->destroyImage($product->image);
+                $image_name = $this->saveImage($request->image);
+            }
+
+            $product->update([
+                'name' => $request->name,
+                'description' => $request->description,
+                'price' => $request->price,
+                'image' => $image_name ?? $product->image
+            ]);
+
+            $productXcategory = ProductXCategory::where('product_id', $product->id)->where('category_id', $request->category_id_old);
+            $productXcategory->update([
+                'category_id' => $request->category_id_new
+            ]);
+
+            ///
+            $requestIP = new Request([
+                'quantity' => $request->quantity, 
+                'available' => $request->available, 
+                'product_id' => $product->id
+            ]);
+
+            $inventoryController = app(InventoryXProductController::class);
+            $inventoryController->update($requestIP);
+
+            DB::commit();
+            return response()->json(['message' => 'Producto actualizado'],200);        
+            
         } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->validator->errors()], 422);
+            DB::rollBack();
+
+            return response()->json(['error' => 'Error al crear el producto: ' . $e->getMessage()], 500);
         }
-
-        $product = Product::find($request->id);
-
-        if (!$product)
-        {
-            return response()->json(['error' => 'Product no encontrado'], 404);
-        }
-
-        $image_name = null;
-        if($request->image)
-        {
-            $this->destroyImage($product->image);
-            $image_name = $this->saveImage($request->image);
-        }
-
-        $product->update([
-            'name' => $request->name,
-            'description' => $request->description,
-            'price' => $request->price,
-            'image' => $image_name ?? $product->image
-        ]);
-
-        $productXcategory = ProductXCategory::where('product_id', $product->id)->where('category_id', $request->category_id_old);
-        $productXcategory->update([
-            'category_id' => $request->category_id_new
-        ]);
-
-        return response()->json(['message' => 'Producto actualizado'],200);        
     }
 
     public function destroy(Request $request)
