@@ -9,6 +9,7 @@ use App\Models\Direction;
 use App\Models\Sale;
 use App\Models\Category;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Validation\ValidationException;
 
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class ClientController extends Controller
         $maxDuration = Category::max('duration');
 
         // Calcular la fecha mínima de creación de venta permitida
-        $fechaMinima = Carbon::now()->subDays($maxDuration);
+        $fechaMinima = Carbon::now('America/Costa_Rica')->subDays($maxDuration);
 
         $memberships = Sale::whereHas('saleDetailsM.inventoryXProductsM.productM.productXCategory.categoryM')
         ->with('saleDetailsM.inventoryXProductsM.productM.productXCategory.categoryM')->where('created_at', '>=', $fechaMinima)->get();
@@ -85,7 +86,11 @@ class ClientController extends Controller
                 'direction.district_id' => 'required|exists:geos,id',
             ]);
         } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->validator->errors()]);
+            $errors = $e->validator->errors()->all();
+            
+            $errorMessages = implode('*', $errors);
+            return response()->json(['severity' => Lang::get('messages.alerts.type.error'), 
+            'message' => Lang::get('messages.alerts.message.error', ['errors' => $errorMessages])]);
         }
         
         $client = Person::create([
@@ -113,7 +118,8 @@ class ClientController extends Controller
             'person_id' => $client->id
         ]);
 
-        return response()->json(['message' => 'Cliente creado correctamente'], 201); 
+        return response()->json(['severity' => Lang::get('messages.alerts.type.success'), 
+        'message' => Lang::get('messages.alerts.message.success', ['table' => 'Client'])], 201); 
     }
 
     public function update(Request $request)
