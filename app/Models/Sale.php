@@ -23,4 +23,11 @@ class Sale extends Model
     {
         return $this->hasMany(SaleDetail::class);
     }
+
+    // Membresias
+    public function saleDetailsM()
+    {
+        return $this->hasMany(SaleDetail::class)->select('id', 'sale_id', 'inventory_x_products_id');
+    }
+    /////
 }

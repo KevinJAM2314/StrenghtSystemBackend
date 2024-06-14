@@ -6,6 +6,9 @@ use App\Models\Contact;
 use App\Models\TypeContact;
 use App\Models\Geo;
 use App\Models\Direction;
+use App\Models\Sale;
+use App\Models\Category;
+use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 
 use Illuminate\Http\Request;
@@ -15,9 +18,28 @@ class ClientController extends Controller
     public function index()
     {
         $clients = Person::where('type_person_id', 2)
-                ->with(['contacts','directions.district.canton.province'])
+                ->with(['contacts','directions.district.canton.province'])->select('id', 'firstName', 'secondName', 'firstLastName', 'secondLastName', 'gender', 'dateBirth')
                 ->get();
         
+        // Obtener la duración máxima desde las membresías
+        $maxDuration = Category::max('duration');
+
+        // Calcular la fecha mínima de creación de venta permitida
+        $fechaMinima = Carbon::now()->subDays($maxDuration);
+
+        $memberships = Sale::whereHas('saleDetailsM.inventoryXProductsM.productM.productXCategory.categoryM')
+        ->with('saleDetailsM.inventoryXProductsM.productM.productXCategory.categoryM')->where('created_at', '>=', $fechaMinima)->get();
+
+        $membershipsDays = $this->validateMembership($memberships);
+
+        foreach($clients as $client){
+            if (isset($membershipsDays[$client->id])) {
+                $client->membership = $membershipsDays[$client->id];
+            } else {
+                $client->membership = 0;
+            }
+        }
+
         return response()->json(['clients' => $clients], 200);
     }
 
@@ -155,4 +177,49 @@ class ClientController extends Controller
         }
         return response()->json(['message' => 'Cliente no encontrado']); 
     }
+
+    private function validateMembership($memberships)
+    {
+        // Arreglo para almacenar resultados
+        $results = [];
+
+        // Obtener la fecha actual
+        $currentDate = Carbon::now('America/Costa_Rica');
+        foreach ($memberships as $membership) {
+            $personId = $membership->person_id;
+
+            $createdAt = Carbon::parse($membership->created_at);
+            
+            $totalDuration = 0;
+
+            foreach ($membership->saleDetailsM as $saleDetail) {
+                foreach ($saleDetail->inventoryXProductsM->productM->productXCategory as $productXCategory) {
+                    if ($productXCategory->categoryM) {
+                        $totalDuration += $productXCategory->categoryM->duration; 
+                        
+                        break;
+                    }
+                }
+            }            
+
+            if (isset($results[$personId])) {
+
+                $results[$personId]['days_until_expiry'] += $totalDuration;
+            } else {
+                // Calcular fecha límite sumando la duración a la fecha de creación
+                $endDate = $createdAt->copy()->addDays($totalDuration);
+                
+                // Calcular diferencia de días entre fecha límite y fecha actual
+                $differenceInDays = $currentDate->diffInDays($endDate, false);
+                
+                // Si no existe, crear un nuevo resultado para este person_id
+                $results[$personId] = max(0, $differenceInDays);
+            }
+        }
+
+        return $results;
+    }
 }
+
+
+

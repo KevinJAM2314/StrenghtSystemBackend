@@ -26,4 +26,11 @@ class SaleDetail extends Model
     {
         return $this->belongsTo(InventoryXProduct::class);
     }
+
+    // Membresias
+    public function inventoryXProductsM()
+    {
+        return $this->belongsTo(InventoryXProduct::class, 'inventory_x_products_id')->select('id', 'product_id');
+    }
+    /////
 }

@@ -42,4 +42,11 @@ class Product extends Model
     {
         return $this->hasMany(ProductXCategory::class);
     }
+
+    // Membresias
+    public function productXCategoryM()
+    {
+        return $this->hasMany(ProductXCategory::class, 'product_id')->select('id', 'product_id', 'category_id');
+    }
+
 }

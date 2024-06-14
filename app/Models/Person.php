@@ -43,4 +43,11 @@ class Person extends Model
     {
         return $this->hasMany(Sale::class);
     }
+
+    // Membresias
+    public function salesM()
+    {
+        return $this->hasMany(Sale::class)->select('id', 'created_at', 'person_id');
+    }
+    ///
 }

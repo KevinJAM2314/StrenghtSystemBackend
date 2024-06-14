@@ -25,4 +25,11 @@ class ProductXCategory extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    // Membresias
+    public function categoryM()
+    {
+        return $this->belongsTo(Category::class, 'category_id')->whereNotNull('duration');
+    }
+
 }

@@ -34,4 +34,11 @@ class InventoryXProduct extends Model
         return $result >= 0;
     }
 
+    // Membresias
+    public function productM()
+    {
+        return $this->belongsTo(Product::class, 'product_id')->select('id');
+    }
+    ///////
+
 }
