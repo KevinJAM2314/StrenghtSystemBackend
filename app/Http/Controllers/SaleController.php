@@ -26,7 +26,7 @@ class SaleController extends Controller
                             ->select('id', 'firstName', 'secondName', 'firstLastName', 'secondLastName')
                             ->get();
 
-        $products = Product::select('id', 'name', 'price')->get();
+        $products = Product::whereHas('inventoryXProducts')->select('id', 'name', 'price')->with('inventoryXProducts')->get();
         return response()->json(['clients' => $clients, 'products' => $products]);
     }
     
