@@ -10,8 +10,10 @@ return [
         ],
 
         'message' => [
-            'success' => ':table created',
-            'update' => ':table actualizad:gender',
+            'create' => ':table created',
+            'update' => ':table updated',
+            'delete' => ':table deleted',
+            'not_found' => ':table not found',  
             'error' => ':errors'
         ]
     ]

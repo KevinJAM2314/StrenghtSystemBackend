@@ -90,7 +90,7 @@ class ClientController extends Controller
             
             $errorMessages = implode('*', $errors);
             return response()->json(['severity' => Lang::get('messages.alerts.type.error'), 
-            'message' => Lang::get('messages.alerts.message.error', ['errors' => $errorMessages])]);
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 404);
         }
         
         $client = Person::create([
@@ -139,13 +139,18 @@ class ClientController extends Controller
                 'direction.district_id' => 'required|exists:geos,id',
             ]);
         } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->validator->errors()]);
+            $errors = $e->validator->errors()->all();
+            
+            $errorMessages = implode('*', $errors);
+            return response()->json(['severity' => Lang::get('messages.alerts.type.error'), 
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
         }
 
         $client = Person::find($request->id);
 
         if (!$client) {
-            return response()->json(['error' => 'Cliente no encontrado'], 404);
+            return response()->json(['severity' => Lang::get('messages.alerts.type.error'), 
+            'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Client'])]);
         }
 
         $client->update([
@@ -172,7 +177,8 @@ class ClientController extends Controller
               'geo_id' => $request->direction['district_id']
           ]);
 
-        return response()->json(['message' => 'Cliente Actualizado']); 
+          return response()->json(['severity' => Lang::get('messages.alerts.type.success'), 
+          'message' => Lang::get('messages.alerts.message.update', ['table' => 'Client'])], 201);
     }
 
     public function destroy(Request $request)
@@ -181,7 +187,8 @@ class ClientController extends Controller
             Person::destroy($request->id);
             return response()->json(['message' => 'Cliente eliminado con exito'], 204); 
         }
-        return response()->json(['message' => 'Cliente no encontrado']); 
+        return response()->json(['severity' => Lang::get('messages.alerts.type.error'), 
+        'message' => Lang::get('messages.alerts.message.deleted', ['table' => 'Client'])]);
     }
 
     private function validateMembership($memberships)

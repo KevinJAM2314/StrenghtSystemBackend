@@ -26,7 +26,12 @@ class SaleController extends Controller
                             ->select('id', 'firstName', 'secondName', 'firstLastName', 'secondLastName')
                             ->get();
 
-        $products = Product::whereHas('inventoryXProducts')->select('id', 'name', 'price')->with('inventoryXProducts')->get();
+        $products = Product::whereHas('inventoryXProducts')->select('id', 'name', 'price', 'image')->with('inventoryXProducts')->get();
+
+        $products->each(function ($product) {
+            $product->makeHidden(['image']);
+        });
+
         return response()->json(['clients' => $clients, 'products' => $products]);
     }
     
