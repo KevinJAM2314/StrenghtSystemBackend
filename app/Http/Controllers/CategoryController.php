@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Validation\ValidationException;
 
 class CategoryController extends Controller
@@ -20,10 +21,15 @@ class CategoryController extends Controller
         try{
             $request->validate([
                 'name' => 'required|string|max:20',
-                'duration' => 'nullable|integer',
+                'duration' => 'nullable|integer|min:1',
             ]);
         } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->validator->errors()]);
+            $errors = $e->validator->errors()->all();
+            
+            $errorMessages = implode('*', $errors);
+
+            return response()->json(['title' => Lang::get('messages.alerts.type.error'), 
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 404);
         }
 
         Category::create([
@@ -31,7 +37,8 @@ class CategoryController extends Controller
             'duration' => $request->duration ?? null,
         ]);
 
-        return response()->json(['message' => 'Categoria creada correctamente'], 201); 
+        return response()->json(['title' => Lang::get('messages.alerts.type.success'), 
+        'message' => Lang::get('messages.alerts.message.create', ['table' => 'Category'])], 201); 
     }
 
     public function show(Request $request)

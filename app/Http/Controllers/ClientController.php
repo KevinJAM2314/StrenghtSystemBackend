@@ -89,7 +89,7 @@ class ClientController extends Controller
             $errors = $e->validator->errors()->all();
             
             $errorMessages = implode('*', $errors);
-            return response()->json(['severity' => Lang::get('messages.alerts.type.error'), 
+            return response()->json(['title' => Lang::get('messages.alerts.type.error'), 
             'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 404);
         }
         
@@ -118,8 +118,8 @@ class ClientController extends Controller
             'person_id' => $client->id
         ]);
 
-        return response()->json(['severity' => Lang::get('messages.alerts.type.success'), 
-        'message' => Lang::get('messages.alerts.message.success', ['table' => 'Client'])], 201); 
+        return response()->json(['title' => Lang::get('messages.alerts.type.success'), 
+        'message' => Lang::get('messages.alerts.message.create', ['table' => 'Client'])], 201); 
     }
 
     public function update(Request $request)
@@ -142,14 +142,14 @@ class ClientController extends Controller
             $errors = $e->validator->errors()->all();
             
             $errorMessages = implode('*', $errors);
-            return response()->json(['severity' => Lang::get('messages.alerts.type.error'), 
+            return response()->json(['title' => Lang::get('messages.alerts.type.error'), 
             'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
         }
 
         $client = Person::find($request->id);
 
         if (!$client) {
-            return response()->json(['severity' => Lang::get('messages.alerts.type.error'), 
+            return response()->json(['title' => Lang::get('messages.alerts.type.error'), 
             'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Client'])]);
         }
 
@@ -177,18 +177,19 @@ class ClientController extends Controller
               'geo_id' => $request->direction['district_id']
           ]);
 
-          return response()->json(['severity' => Lang::get('messages.alerts.type.success'), 
+          return response()->json(['title' => Lang::get('messages.alerts.type.success'), 
           'message' => Lang::get('messages.alerts.message.update', ['table' => 'Client'])], 201);
     }
 
     public function destroy(Request $request)
-    {   
+    {      
         if(Person::find($request->id)){
             Person::destroy($request->id);
-            return response()->json(['message' => 'Cliente eliminado con exito'], 204); 
+            return response()->json(['title' => Lang::get('messages.alerts.type.error'), 
+            'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Client']), 201]);
         }
-        return response()->json(['severity' => Lang::get('messages.alerts.type.error'), 
-        'message' => Lang::get('messages.alerts.message.deleted', ['table' => 'Client'])]);
+        return response()->json(['title' => Lang::get('messages.alerts.type.error'), 
+        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Client'])]);
     }
 
     private function validateMembership($memberships)

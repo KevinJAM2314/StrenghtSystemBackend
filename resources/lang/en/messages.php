@@ -2,11 +2,11 @@
 
 return [
     'alerts' => [
-        'type' => [
-            'success' => 'success',
-            'info' => 'info',
-            'warning' => 'warning',
-            'error' => 'error'
+        'title' => [
+            'success' => 'Success',
+            'info' => 'Info',
+            'warning' => 'Warning',
+            'error' => 'Error'
         ],
 
         'message' => [
