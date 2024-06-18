@@ -28,7 +28,7 @@ class CategoryController extends Controller
             
             $errorMessages = implode('*', $errors);
 
-            return response()->json(['title' => Lang::get('messages.alerts.type.error'), 
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
             'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 404);
         }
 
@@ -37,7 +37,7 @@ class CategoryController extends Controller
             'duration' => $request->duration ?? null,
         ]);
 
-        return response()->json(['title' => Lang::get('messages.alerts.type.success'), 
+        return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
         'message' => Lang::get('messages.alerts.message.create', ['table' => 'Category'])], 201); 
     }
 

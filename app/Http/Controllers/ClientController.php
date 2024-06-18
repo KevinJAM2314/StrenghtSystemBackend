@@ -89,7 +89,7 @@ class ClientController extends Controller
             $errors = $e->validator->errors()->all();
             
             $errorMessages = implode('*', $errors);
-            return response()->json(['title' => Lang::get('messages.alerts.type.error'), 
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
             'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 404);
         }
         
@@ -118,7 +118,7 @@ class ClientController extends Controller
             'person_id' => $client->id
         ]);
 
-        return response()->json(['title' => Lang::get('messages.alerts.type.success'), 
+        return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
         'message' => Lang::get('messages.alerts.message.create', ['table' => 'Client'])], 201); 
     }
 
@@ -142,14 +142,14 @@ class ClientController extends Controller
             $errors = $e->validator->errors()->all();
             
             $errorMessages = implode('*', $errors);
-            return response()->json(['title' => Lang::get('messages.alerts.type.error'), 
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
             'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
         }
 
         $client = Person::find($request->id);
 
         if (!$client) {
-            return response()->json(['title' => Lang::get('messages.alerts.type.error'), 
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
             'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Client'])]);
         }
 
@@ -177,7 +177,7 @@ class ClientController extends Controller
               'geo_id' => $request->direction['district_id']
           ]);
 
-          return response()->json(['title' => Lang::get('messages.alerts.type.success'), 
+          return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
           'message' => Lang::get('messages.alerts.message.update', ['table' => 'Client'])], 201);
     }
 
@@ -185,10 +185,10 @@ class ClientController extends Controller
     {      
         if(Person::find($request->id)){
             Person::destroy($request->id);
-            return response()->json(['title' => Lang::get('messages.alerts.type.error'), 
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
             'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Client']), 201]);
         }
-        return response()->json(['title' => Lang::get('messages.alerts.type.error'), 
+        return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
         'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Client'])]);
     }
 
