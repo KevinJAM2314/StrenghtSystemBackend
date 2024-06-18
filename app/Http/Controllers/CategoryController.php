@@ -12,8 +12,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::all();
-
-        return response()->json(['categories' => $categories]); 
+        return response()->json(['categories' => $categories]);
     }
 
     public function store(Request $request)
@@ -62,7 +61,7 @@ class CategoryController extends Controller
         $category = Category::find($request->id);
 
         if (!$category) {
-            return response()->json(['error' => 'Categoria no encontrada'], 404);
+            return response()->json(['error' => 'Categoria no encontrada'], 201);
         }
 
         $category-> update([
@@ -79,8 +78,18 @@ class CategoryController extends Controller
     public function destroy(Request $request)
     {
         if(Category::find($request->id)){
-            Category::destroy($request->id);
-            return response()->json(['message' => 'Categoria eliminada con exito'], 204); 
+            $categorySale = Category::whereHas('productXcategories', function ($query) use ($request) {
+                $query->where('id', $request->id);
+            })->with('productXcategories.product.saleDetails')->first();
+
+            $category = $categorySale ? True : False;
+
+            if(!$category){
+                Category::destroy($request->id);
+                return response()->json(['message' => 'Categoria eliminada con exito']); 
+            } else {
+                return response()->json(['message' => 'Categoria no puede ser elimanada']);         
+            }
         }
         return response()->json(['message' => 'Categoria no encontrada']); 
     }

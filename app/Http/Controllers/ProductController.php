@@ -155,13 +155,22 @@ class ProductController extends Controller
     public function destroy(Request $request)
     {   
         $product = Product::find($request->id);
-        if($product)
-        {
+        if($product){
+            $productySale = Product::whereHas('inventoryXProducts', function ($query) use ($product) {
+                $query->where('id', $product->id);
+            })->with('inventoryXProducts.saleDetail')->first();
 
-            $this->destroyImage($product->image);
+            $productS = $productySale ? True : False;
 
-            $product->delete();
-            return response()->json(['message' => 'Producto eliminado con exito'], 204); 
+            if(!$productS){
+
+                $this->destroyImage($product->image);
+                $product->delete();
+                return response()->json(['message' => 'Producto eliminada con exito']); 
+            } else {
+                return response()->json(['message' => 'Producto no puede ser elimanada']);         
+            }
+
         }
         return response()->json(['message' => 'Producto no encontrado']); 
     }

@@ -28,6 +28,11 @@ class InventoryXProduct extends Model
         return $this->belongsTo(Inventory::class);
     }
 
+    public function saleDetail()
+    {
+        return $this->belongsTo(SaleDetail::class);
+    }
+
     public function validateQuantity($saleQuantity)
     {
         $result = $this->quantity - $saleQuantity;

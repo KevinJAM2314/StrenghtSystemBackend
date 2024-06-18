@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Person;
 use App\Models\Contact;
-use App\Models\TypeContact;
+use App\Models\Contact;
 use App\Models\Geo;
 use App\Models\Direction;
 use App\Models\Sale;
@@ -18,7 +18,7 @@ class ClientController extends Controller
 {
     public function index()
     {
-        $clients = Person::where('type_person_id', 2)
+        $clients = Person::where('_person_id', 2)
                 ->with(['contacts','directions.district.canton.province'])->select('id', 'firstName', 'secondName', 'firstLastName', 'secondLastName', 'gender', 'dateBirth')
                 ->get();
         
@@ -46,18 +46,18 @@ class ClientController extends Controller
 
     public function create()
     {
-        $typeContacts = TypeContact::select('id', 'description')->get();
+        $Contacts = Contact::select('id', 'description')->get();
 
         $provinces = Geo::where('geo_id', null)->select('id', 'description')->get();
 
-        return response()->json(['typeContacts' => $typeContacts, 'provinces' => $provinces]); 
+        return response()->json(['Contacts' => $Contacts, 'provinces' => $provinces]); 
 
     }
 
     public function show(Request $request)
     {
         $client = Person::where('id', $request->id)
-                        ->where('type_person_id', 2)
+                        ->where('_person_id', 2)
                         ->with(['contacts','directions.district.canton.province'])->first();
         if ($client->directions) {
             $district = Geo::where('id', $client->directions[0]->geo_id)->first();
@@ -81,7 +81,7 @@ class ClientController extends Controller
                 'person.dateBirth' => 'nullable|date|before:today',
                 'contacts' => 'required|array',
                 'contacts.*.value' => 'required|string|max:30',
-                'contacts.*.type_contact_id' => 'required|exists:type_contacts,id',
+                'contacts.*._contact_id' => 'required|exists:_contacts,id',
                 'direction.description' => 'required|string|max:50',
                 'direction.district_id' => 'required|exists:geos,id',
             ]);
@@ -90,7 +90,7 @@ class ClientController extends Controller
             
             $errorMessages = implode('*', $errors);
             return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 404);
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 201);
         }
         
         $client = Person::create([
@@ -100,14 +100,14 @@ class ClientController extends Controller
             'secondLastName' => $request->person['secondLastName'],
             'gender' => $request->person['gender'],
             'dateBirth' => $request->person['dateBirth'],
-            'type_person_id' => 2
+            '_person_id' => 2
         ]);
 
         foreach ($request->contacts as $contact)
         {
             Contact::create([
                 'value' => $contact['value'],
-                'type_contact_id' => $contact['type_contact_id'],
+                '_contact_id' => $contact['_contact_id'],
                 'person_id' => $client->id
             ]);
         }
@@ -134,7 +134,7 @@ class ClientController extends Controller
                 'person.dateBirth' => 'nullable|date|before:today',
                 'contacts' => 'required|array',
                 'contacts.*.value' => 'required|string|max:30',
-                'contacts.*.type_contact_id' => 'required|exists:type_contacts,id',
+                'contacts.*._contact_id' => 'required|exists:_contacts,id',
                 'direction.description' => 'required|string|max:50',
                 'direction.district_id' => 'required|exists:geos,id',
             ]);
@@ -160,13 +160,13 @@ class ClientController extends Controller
             'secondLastName' => $request->person['secondLastName'],
             'gender' => $request->person['gender'],
             'dateBirth' => $request->person['dateBirth'],
-            'type_person_id' => 2
+            '_person_id' => 2
         ]);
 
         foreach ($request->contacts as $contact)
         {
             Contact::where('person_id', $client->id)
-            ->where('type_contact_id', $contact['type_contact_id'])
+            ->where('_contact_id', $contact['_contact_id'])
             ->update(['value' => $contact['value']]);
         }
 
@@ -191,7 +191,7 @@ class ClientController extends Controller
         return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
         'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Client'])]);
     }
-
+    
     private function validateMembership($memberships)
     {
         // Arreglo para almacenar resultados
