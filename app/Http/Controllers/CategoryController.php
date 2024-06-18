@@ -29,7 +29,7 @@ class CategoryController extends Controller
             $errorMessages = implode('*', $errors);
 
             return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 404);
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 201);
         }
 
         Category::create([
