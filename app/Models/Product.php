@@ -35,7 +35,7 @@ class Product extends Model
 
     public function inventoryXProducts()
     {
-        return $this->hasMany(InventoryXProduct::class)->where('available', true);
+        return $this->hasMany(InventoryXProduct::class);
     }
 
     public function productXCategory()
