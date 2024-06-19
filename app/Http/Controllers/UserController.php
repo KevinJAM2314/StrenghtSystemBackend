@@ -96,11 +96,10 @@ class UserController extends Controller
     {
         $user = User::find($request->id);
         if($user){
-            $user->update([
-                'confirmated' => true
-            ]);
+            $user->confirmated = true;
+            $user->save();
             return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-            'message' => Lang::get('messages.alerts.message.confirmated', ['table' => 'User'])]);
+            'message' => Lang::get('messages.alerts.message.confirmated', ['table' => 'User'])]); 
         }
         return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
         'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'User'])]); 
@@ -110,9 +109,9 @@ class UserController extends Controller
     {
         $user = User::find($request->id);
         if($user){
-            $user->destroy();
+            $user->delete();
             return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-            'message' => Lang::get('messages.alerts.message.destoy', ['table' => 'User'])]); 
+            'message' => Lang::get('messages.alerts.message.delete', ['table' => 'User'])]); 
         }
         return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
         'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'User'])]); 
