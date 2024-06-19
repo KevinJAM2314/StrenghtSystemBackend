@@ -67,7 +67,8 @@ class SaleController extends Controller
 
             $this->updateInvoice($invoiceId, $sale->totalAmount);
             DB::commit();
-            return response()->json(['message' => 'Venta registrada correctamente'], 201); 
+            return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
+            'message' => Lang::get('messages.alerts.message.create', ['table' => 'Sale'])]); 
         } catch (ValidationException $e) {
             DB::rollBack();
 

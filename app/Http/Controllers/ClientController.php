@@ -17,7 +17,7 @@ class ClientController extends Controller
 {
     public function index()
     {
-        $clients = Person::where('_person_id', 2)
+        $clients = Person::where('type_person_id', 2)
                 ->with(['contacts','directions.district.canton.province'])->select('id', 'firstName', 'secondName', 'firstLastName', 'secondLastName', 'gender', 'dateBirth')
                 ->get();
         
@@ -45,18 +45,16 @@ class ClientController extends Controller
 
     public function create()
     {
-        $Contacts = Contact::select('id', 'description')->get();
-
         $provinces = Geo::where('geo_id', null)->select('id', 'description')->get();
 
-        return response()->json(['Contacts' => $Contacts, 'provinces' => $provinces]); 
+        return response()->json(['provinces' => $provinces]); 
 
     }
 
     public function show(Request $request)
     {
         $client = Person::where('id', $request->id)
-                        ->where('_person_id', 2)
+                        ->where('type_person_id', 2)
                         ->with(['contacts','directions.district.canton.province'])->first();
         if ($client->directions) {
             $district = Geo::where('id', $client->directions[0]->geo_id)->first();
@@ -159,7 +157,7 @@ class ClientController extends Controller
             'secondLastName' => $request->person['secondLastName'],
             'gender' => $request->person['gender'],
             'dateBirth' => $request->person['dateBirth'],
-            '_person_id' => 2
+            'type_person_id' => 2
         ]);
 
         foreach ($request->contacts as $contact)

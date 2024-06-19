@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Lang;
 
 class UserController extends Controller
 {
@@ -32,7 +33,12 @@ class UserController extends Controller
                 'user.password' => 'required|string|min:6'
             ]);
         } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->validator->errors()]);
+            $errors = $e->validator->errors()->all();
+            
+            $errorMessages = implode('*', $errors);
+
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
         }
 
         $person = Person::create([
@@ -51,7 +57,8 @@ class UserController extends Controller
             'person_id' => $person->id
         ]);
 
-        return response()->json(['message' => 'Admin creado correctamente, espera a que te confirmen'], 201); 
+        return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
+        'message' => Lang::get('messages.alerts.message.create', ['table' => 'User'])]); 
     }
 
     public function verify(Request $request)
@@ -62,7 +69,12 @@ class UserController extends Controller
                 'password' => 'required'
             ]);
         } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->validator->errors()]);
+            $errors = $e->validator->errors()->all();
+            
+            $errorMessages = implode('*', $errors);
+
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
         }
 
         $user = User::where('userName', $request->userName)->first();
@@ -75,8 +87,35 @@ class UserController extends Controller
                 'token' => $token
             ]);
         } else {
-            return response()->json(['message' => 'La cuenta no está confirmada'], 401);
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+            'message' => Lang::get('messages.alerts.message.error_verify', ['table' => 'User'])]);
+        }  
+    }
+
+    public function confirmated(Request $request)
+    {
+        $user = User::find($request->id);
+        if($user){
+            $user->update([
+                'confirmated' => true
+            ]);
+            return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
+            'message' => Lang::get('messages.alerts.message.confirmated', ['table' => 'User'])]);
         }
-        return response()->json(['message' => 'Credenciales incorrectas o la cuenta no esta confirmada']); 
+        return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'User'])]); 
+    }
+
+    public function destroy(Request $request)
+    {
+        $user = User::find($request->id);
+        if($user){
+            $user->destroy();
+            return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
+            'message' => Lang::get('messages.alerts.message.destoy', ['table' => 'User'])]); 
+        }
+        return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'User'])]); 
     }
 }
+
