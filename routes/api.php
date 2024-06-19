@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // User - admin
+Route::get('/users', [UserController::class, 'index']);
 Route::post('/users/login', [UserController::class, 'verify']);
 Route::post('/users', [UserController::class, 'store']);
 
