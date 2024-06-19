@@ -26,7 +26,7 @@ Route::get('/users', [UserController::class, 'index']);
 Route::post('/users/login', [UserController::class, 'verify']);
 Route::post('/users', [UserController::class, 'store']);
 Route::put('/users/confirmated', [UserController::class, 'confirmated']);
-Route::delete('/users', [UserController::class, 'destroy']);
+Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
 // Client
 Route::get('/clients', [ClientController::class, 'index']);
