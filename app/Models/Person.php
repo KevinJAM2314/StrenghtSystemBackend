@@ -44,6 +44,12 @@ class Person extends Model
         return $this->hasMany(Sale::class);
     }
 
+    public function fullname()
+    {
+        return $this->firstName . ' ' . $this->secondName . ' ' . $this->firstLastName . ' ' . $this->secondLastName;
+    }
+
+
     // Membresias
     public function salesM()
     {

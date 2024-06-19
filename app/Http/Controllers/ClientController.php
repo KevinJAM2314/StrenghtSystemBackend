@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 use App\Models\Person;
 use App\Models\Contact;
-use App\Models\Contact;
 use App\Models\Geo;
 use App\Models\Direction;
 use App\Models\Sale;
@@ -81,7 +80,7 @@ class ClientController extends Controller
                 'person.dateBirth' => 'nullable|date|before:today',
                 'contacts' => 'required|array',
                 'contacts.*.value' => 'required|string|max:30',
-                'contacts.*._contact_id' => 'required|exists:_contacts,id',
+                'contacts.*.type_contact_id' => 'required|exists:type_contacts,id',
                 'direction.description' => 'required|string|max:50',
                 'direction.district_id' => 'required|exists:geos,id',
             ]);
@@ -100,14 +99,14 @@ class ClientController extends Controller
             'secondLastName' => $request->person['secondLastName'],
             'gender' => $request->person['gender'],
             'dateBirth' => $request->person['dateBirth'],
-            '_person_id' => 2
+            'type_person_id' => 2
         ]);
 
         foreach ($request->contacts as $contact)
         {
             Contact::create([
                 'value' => $contact['value'],
-                '_contact_id' => $contact['_contact_id'],
+                'type_contact_id' => $contact['type_contact_id'],
                 'person_id' => $client->id
             ]);
         }
@@ -185,7 +184,7 @@ class ClientController extends Controller
     {      
         if(Person::find($request->id)){
             Person::destroy($request->id);
-            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+            return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
             'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Client']), 201]);
         }
         return response()->json(['title' => Lang::get('messages.alerts.title.error'), 

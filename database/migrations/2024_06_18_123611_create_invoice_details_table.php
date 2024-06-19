@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('quantity');
             $table->decimal('total', 8, 2);
-            $table->bigInteger('inventory_name');
+            $table->string('inventory_name');
             $table->foreignId('invoice_id')->constrained()->onDelete('cascade');
         });
     }

@@ -28,7 +28,7 @@ class CategoryController extends Controller
             $errorMessages = implode('*', $errors);
 
             return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 201);
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
         }
 
         Category::create([
@@ -37,7 +37,7 @@ class CategoryController extends Controller
         ]);
 
         return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-        'message' => Lang::get('messages.alerts.message.create', ['table' => 'Category'])], 201); 
+        'message' => Lang::get('messages.alerts.message.create', ['table' => 'Category'])]); 
     }
 
     public function show(Request $request)
@@ -61,7 +61,8 @@ class CategoryController extends Controller
         $category = Category::find($request->id);
 
         if (!$category) {
-            return response()->json(['error' => 'Categoria no encontrada'], 201);
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+            'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Category'])]);  
         }
 
         $category-> update([
@@ -69,7 +70,8 @@ class CategoryController extends Controller
             'duration' => $request->duration ?? null,
         ]);
 
-        return response()->json(['message' => 'Categoria Actualizada correctamente']); 
+        return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
+        'message' => Lang::get('messages.alerts.message.update', ['table' => 'Category'])]);  
     }
 
     /**
@@ -86,11 +88,14 @@ class CategoryController extends Controller
 
             if(!$category){
                 Category::destroy($request->id);
-                return response()->json(['message' => 'Categoria eliminada con exito']); 
+                return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
+                'message' => Lang::get('messages.alerts.message.destroy', ['table' => 'Category'])]); 
             } else {
-                return response()->json(['message' => 'Categoria no puede ser elimanada']);         
+                return response()->json(['title' => Lang::get('messages.alerts.title.warning'), 
+                'message' => Lang::get('messages.alerts.message.cancel', ['table' => 'Category'])]); 
             }
         }
-        return response()->json(['message' => 'Categoria no encontrada']); 
+        return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Category'])]); 
     }
 }

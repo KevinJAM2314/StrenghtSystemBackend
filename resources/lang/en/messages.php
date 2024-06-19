@@ -13,7 +13,8 @@ return [
             'create' => ':table created',
             'update' => ':table updated',
             'delete' => ':table deleted',
-            'not_found' => ':table not found',  
+            'not_found' => ':table not found',
+            'cancel' => ':table cannot be deleted',  
             'error' => ':errors'
         ]
     ]

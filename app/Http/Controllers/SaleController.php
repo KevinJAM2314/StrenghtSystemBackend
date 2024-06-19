@@ -9,6 +9,7 @@ use App\Models\Person;
 use App\Models\Product;
 use App\Models\InventoryXProduct;
 use App\Http\Controllers\SaleDetailController;
+use App\Models\Invoice;
 use Illuminate\Support\Facades\DB;
 
 class SaleController extends Controller
@@ -56,13 +57,14 @@ class SaleController extends Controller
                 'person_id' => $request->person_id,
                 'totalAmount' => 0
             ]);
-            
-            $total = $this->saleDetails($request, $sale->id);
+            $invoiceId =  $this->saveInvoice($sale);
+            $total = $this->saleDetails($request, $sale->id, $invoiceId);
             
             $sale->update([
                 'totalAmount' => $total
             ]);
 
+            $this->updateInvoice($invoiceId, $sale->totalAmount);
             DB::commit();
             return response()->json(['message' => 'Venta registrada correctamente'], 201); 
         } catch (ValidationException $e) {
@@ -94,7 +96,7 @@ class SaleController extends Controller
             $sale->update([
                 'person_id' => $request->person_id,
                 'totalAmount' => $total
-            ]);
+            ]); 
 
             DB::commit();
             return response()->json(['message' => 'Venta Actualizada correctamente']); 
@@ -113,7 +115,7 @@ class SaleController extends Controller
         return response()->json(['message' => 'Venta no encontrado']); 
     }
 
-    private function saleDetails($request, $sale_id=null)
+    private function saleDetails($request, $sale_id=null, $invoiceId=null)
     {
         $saleDetailController = app(SaleDetailController::class);
         $total = 0;
@@ -129,16 +131,16 @@ class SaleController extends Controller
                 'inventory_x_products_id' => $inventoryXPproduct->id
             ]);
             
-            $total += $this->storeOrUpdateSaleDetails($saleDetailController, $saleD, $sale_id);   
+            $total += $this->storeOrUpdateSaleDetails($saleDetailController, $saleD, $sale_id, $invoiceId);   
         }
         return $total;
     }
 
-    private function storeOrUpdateSaleDetails($saleDetailController, $saleD, $sale_id)
+    private function storeOrUpdateSaleDetails($saleDetailController, $saleD, $sale_id, $invoiceId=null)
     {
         if($sale_id)
         {
-            return $saleDetailController->store($saleD);   
+            return $saleDetailController->store($saleD, $invoiceId);   
         }
 
         return  $saleDetailController->update($saleD);   
@@ -172,6 +174,24 @@ class SaleController extends Controller
                 'id' => $detail['id']
             ]));
         }
+    }
 
+    private function saveInvoice($sale)
+    {   
+        $person = Person::find($sale->person_id);
+        $invoice = Invoice::create([
+            'personName' => $person->fullname(),
+            'totalAmount' => $sale->totalAmount,
+            'sale_id' => $sale->id
+        ]);
+        return $invoice->id;
+    }
+
+    private function updateInvoice($invoiceId, $totalAmount)
+    {
+        $invoice = Invoice::find($invoiceId);
+        $invoice->update([
+            'totalAmount' => $totalAmount
+        ]);
     }
 }

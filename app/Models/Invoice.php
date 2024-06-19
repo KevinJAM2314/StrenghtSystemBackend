@@ -11,7 +11,7 @@ class Invoice extends Model
 
     protected $fillable = [
         'totalAmount',
-        'person_name',
+        'personName',
         'sale_id',
     ];
 }

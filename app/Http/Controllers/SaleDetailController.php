@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Inventory;
 use App\Models\SaleDetail;
 use App\Models\Product;
+use App\Models\InvoiceDetail;
 use App\Models\InventoryXProduct;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class SaleDetailController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request, $invoiceId)
     {
         try{
             $request->validate([
@@ -32,6 +34,7 @@ class SaleDetailController extends Controller
                 'inventory_x_products_id' => $request->inventory_x_products_id
             ]);
             
+            $this->saveInvoiceDetail($saleDetail, $invoiceId);
             $inventoryXProduct->update([
                 'quantity' => $inventoryXProduct->quantity - $saleDetail->quantity
             ]);
@@ -114,6 +117,17 @@ class SaleDetailController extends Controller
         $quantityOld = $saleDetail->quantity;
         $inventoryXProduct->update([
             'quantity' => $inventoryXProduct->quantity + $quantityOld
+        ]);
+    }
+
+    private function saveInvoiceDetail($saleDetail, $invoiceId)
+    {
+        $inventory = Inventory::find(1);   
+        InvoiceDetail::create([
+            'quantity' => $saleDetail->quantity,
+            'total' => $saleDetail->total,
+            'inventory_name' => $inventory->name,
+            'invoice_id' => $invoiceId
         ]);
     }
 }

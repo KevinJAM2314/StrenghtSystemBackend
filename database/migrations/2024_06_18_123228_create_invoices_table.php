@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            $table->string('person_name');
+            $table->string('personName');
             $table->decimal('totalAmount', 8, 2);
             $table->timestamps();
             $table->bigInteger('sale_id');
