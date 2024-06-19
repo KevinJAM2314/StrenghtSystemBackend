@@ -11,6 +11,7 @@ use App\Models\InventoryXProduct;
 use App\Http\Controllers\SaleDetailController;
 use App\Models\Invoice;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Lang;
 
 class SaleController extends Controller
 {
@@ -24,8 +25,8 @@ class SaleController extends Controller
     public function create()
     {
         $clients = Person::where('type_person_id', 2)
-                            ->select('id', 'firstName', 'secondName', 'firstLastName', 'secondLastName')
-                            ->get();
+        ->select('id', 'firstName', 'secondName', 'firstLastName', 'secondLastName')
+        ->get();
 
         $products = Product::whereHas('inventoryXProducts')->select('id', 'name', 'price', 'image')->with('inventoryXProducts')->get();
 
@@ -69,7 +70,16 @@ class SaleController extends Controller
             return response()->json(['message' => 'Venta registrada correctamente'], 201); 
         } catch (ValidationException $e) {
             DB::rollBack();
-            return response()->json(['errors' => $e->validator->errors()]);
+
+            $errors = $e->validator->errors()->all();
+            
+            $errorMessages = implode('*', $errors);
+
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(json_decode($e->getMessage()));
         }
     }
 
@@ -85,7 +95,8 @@ class SaleController extends Controller
             $sale = Sale::find($request->id);
 
             if (!$sale) {
-                return response()->json(['error' => 'Venta nunca registrada'], 404);
+                return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+                'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Sale'])]);
             }
 
             DB::beginTransaction();
@@ -99,10 +110,17 @@ class SaleController extends Controller
             ]); 
 
             DB::commit();
-            return response()->json(['message' => 'Venta Actualizada correctamente']); 
+            return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
+            'message' => Lang::get('messages.alerts.message.update', ['table' => 'Sale'])]); 
         } catch (ValidationException $e) {
             DB::rollBack();
-            return response()->json(['errors' => $e->validator->errors()]);
+            
+            $errors = $e->validator->errors()->all();
+            
+            $errorMessages = implode('*', $errors);
+
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
         }
     }
 
@@ -110,9 +128,11 @@ class SaleController extends Controller
     {
         if(Sale::find($request->id)){
             Sale::destroy($request->id);
-            return response()->json(['message' => 'Venta eliminada con exito'], 204); 
+            return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
+            'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Sale'])]); 
         }
-        return response()->json(['message' => 'Venta no encontrado']); 
+        return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Sale'])]); 
     }
 
     private function saleDetails($request, $sale_id=null, $invoiceId=null)
