@@ -10,6 +10,13 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
+    public function index(Request $request)
+    {
+        $users = User::where('confirmated', 0)->select('id', 'userName')->get();
+
+        return response()->json(['users' => $users]); 
+    }
+    
     public function store(Request $request)
     {   
         $request->request->add(['user.userName' => Str::slug($request->user['userName'])]);
