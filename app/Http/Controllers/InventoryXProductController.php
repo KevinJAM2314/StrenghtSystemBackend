@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InventoryXProduct;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Lang;
 
 class InventoryXProductController extends Controller
 {
@@ -17,24 +17,28 @@ class InventoryXProductController extends Controller
                 'product_id' => $request->product_id,
                 'inventory_id' => 1
             ]);
-            return response()->json(['message' => 'Relación inventario-producto creada correctamente']);
+        
         } catch (\Exception $e) {
-            throw new \Exception('Error al crear la relación inventario-producto:');
+            throw new \Exception(json_encode(['title' => Lang::get('messages.alerts.title.error'), 
+            'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Inventory'])
+            ]));
         }
     }
 
     public function update(Request $request)
     {
-        try {
-            $inventoryXProduct = InventoryXProduct::where('inventory_id', 1)->where('product_id', $request->product_id);
+
+        $inventoryXProduct = InventoryXProduct::where('inventory_id', 5)->where('product_id', $request->product_id)->first();
+        if($inventoryXProduct){
             $inventoryXProduct->update([
                 'quantity' => $request->quantity,
                 'available' => $request->available,
             ]);
-
-            return response()->json(['message' => 'Relación inventario-producto creada correctamente']);
-        } catch (\Exception $e) {
-            throw new \Exception('Error al crear la relación inventario-producto:');
+        } else {
+            throw new \Exception(json_encode(['title' => Lang::get('messages.alerts.title.error'), 
+            'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Inventory'])
+            ]));   
         }
+
     }
 }

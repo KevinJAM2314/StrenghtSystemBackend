@@ -11,6 +11,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Lang;
 
 class ProductController extends Controller
 {
@@ -81,12 +82,21 @@ class ProductController extends Controller
             // Commit si todas las operaciones fueron exitosas
             DB::commit();
         
-            return response()->json(['message' => 'Producto creado', $product], 201);
+            return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
+            'message' => Lang::get('messages.alerts.message.create', ['table' => 'Product'])]);
 
         } catch (ValidationException $e) {
             DB::rollBack();
 
-            return response()->json(['error' => 'Error al crear el producto: ' . $e->getMessage()], 500);
+            $errors = $e->validator->errors()->all();
+            
+            $errorMessages = implode('*', $errors);
+
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(json_decode($e->getMessage()));
         }
 
     }
@@ -110,7 +120,8 @@ class ProductController extends Controller
 
             if (!$product)
             {
-                return response()->json(['error' => 'Product no encontrado'], 404);
+                return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+                'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Product'])]); 
             }
 
             $image_name = null;
@@ -143,12 +154,21 @@ class ProductController extends Controller
             $inventoryController->update($requestIP);
 
             DB::commit();
-            return response()->json(['message' => 'Producto actualizado'],200);        
+            return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
+            'message' => Lang::get('messages.alerts.message.update', ['table' => 'Product'])]);        
             
         } catch (ValidationException $e) {
             DB::rollBack();
 
-            return response()->json(['error' => 'Error al crear el producto: ' . $e->getMessage()], 500);
+            $errors = $e->validator->errors()->all();
+            
+            $errorMessages = implode('*', $errors);
+
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(json_decode($e->getMessage()));
         }
     }
 
@@ -166,13 +186,16 @@ class ProductController extends Controller
 
                 $this->destroyImage($product->image);
                 $product->delete();
-                return response()->json(['message' => 'Producto eliminada con exito']); 
+                return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
+                'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Product'])]); 
             } else {
-                return response()->json(['message' => 'Producto no puede ser elimanada']);         
+                return response()->json(['title' => Lang::get('messages.alerts.title.warning'), 
+                'message' => Lang::get('messages.alerts.message.cancel', ['table' => 'Product'])]);          
             }
 
         }
-        return response()->json(['message' => 'Producto no encontrado']); 
+        return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Category'])]); 
     }
 
     private function saveImage($image)
