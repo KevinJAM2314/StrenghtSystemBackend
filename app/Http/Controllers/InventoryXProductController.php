@@ -28,7 +28,7 @@ class InventoryXProductController extends Controller
     public function update(Request $request)
     {
 
-        $inventoryXProduct = InventoryXProduct::where('inventory_id', 5)->where('product_id', $request->product_id)->first();
+        $inventoryXProduct = InventoryXProduct::where('inventory_id', 1)->where('product_id', $request->product_id)->first();
         if($inventoryXProduct){
             $inventoryXProduct->update([
                 'quantity' => $request->quantity,
