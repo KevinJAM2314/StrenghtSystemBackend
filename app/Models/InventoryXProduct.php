@@ -30,7 +30,7 @@ class InventoryXProduct extends Model
 
     public function saleDetail()
     {
-        return $this->belongsTo(SaleDetail::class);
+        return $this->hasMany(SaleDetail::class, 'inventory_x_products_id');
     }
 
     public function validateQuantity($saleQuantity)

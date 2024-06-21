@@ -82,14 +82,14 @@ class CategoryController extends Controller
         if(Category::find($request->id)){
             $categorySale = Category::whereHas('productXcategories', function ($query) use ($request) {
                 $query->where('id', $request->id);
-            })->with('productXcategories.product.saleDetails')->first();
+            })->with('productXcategories.product.inventoryXProducts.saleDetail')->first();
 
-            $category = $categorySale ? True : False;
+            $category = $categorySale->productXcategories[0]->product->inventoryXProducts[0]->saleDetail->isNotEmpty();
 
             if(!$category){
                 Category::destroy($request->id);
                 return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-                'message' => Lang::get('messages.alerts.message.destroy', ['table' => 'Category'])], 200); 
+                'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Category'])], 200); 
             } else {
                 return response()->json(['title' => Lang::get('messages.alerts.title.warning'), 
                 'message' => Lang::get('messages.alerts.message.cancel', ['table' => 'Category'])], 200); 

@@ -176,11 +176,11 @@ class ProductController extends Controller
     {   
         $product = Product::find($request->id);
         if($product){
-            $productySale = Product::whereHas('inventoryXProducts', function ($query) use ($product) {
+            $productSale = Product::whereHas('inventoryXProducts', function ($query) use ($product) {
                 $query->where('id', $product->id);
-            })->with('inventoryXProducts.saleDetail')->first();
+            })->with('inventoryXProducts.saleDetail')->get();
 
-            $productS = $productySale ? True : False;
+            $productS = $productSale[0]->inventoryXProducts[0]->saleDetail->isNotEmpty();
 
             if(!$productS){
 
@@ -190,7 +190,7 @@ class ProductController extends Controller
                 'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Product'])], 200); 
             } else {
                 return response()->json(['title' => Lang::get('messages.alerts.title.warning'), 
-                'message' => Lang::get('messages.alerts.message.cancel', ['table' => 'Product'])], 200);          
+                'message' => Lang::get('messages.alerts.message.cancel', ['table' => 'Product'])], 200);
             }
 
         }
