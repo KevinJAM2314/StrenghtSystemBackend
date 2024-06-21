@@ -147,7 +147,7 @@ class ClientController extends Controller
 
         if (!$client) {
             return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-            'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Client'])]);
+            'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Client'])], 404);
         }
 
         $client->update([
@@ -183,10 +183,10 @@ class ClientController extends Controller
         if(Person::find($request->id)){
             Person::destroy($request->id);
             return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-            'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Client']), 201]);
+            'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Client'])], 204);
         }
         return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Client'])]);
+        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Client'])], 404);
     }
     
     private function validateMembership($memberships)

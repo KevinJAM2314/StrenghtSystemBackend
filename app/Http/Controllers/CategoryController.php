@@ -12,7 +12,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::all();
-        return response()->json(['categories' => $categories]);
+        return response()->json(['categories' => $categories], 200);
     }
 
     public function store(Request $request)
@@ -28,7 +28,7 @@ class CategoryController extends Controller
             $errorMessages = implode('*', $errors);
 
             return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 400);
         }
 
         Category::create([
@@ -37,14 +37,14 @@ class CategoryController extends Controller
         ]);
 
         return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-        'message' => Lang::get('messages.alerts.message.create', ['table' => 'Category'])]); 
+        'message' => Lang::get('messages.alerts.message.create', ['table' => 'Category'])], 201); 
     }
 
     public function show(Request $request)
     {
         $category = Category::where('id', $request->id)->select('id', 'name', 'duration')->get();
 
-        return response()->json(['category' => $category]); 
+        return response()->json(['category' => $category], 200); 
     }
 
     public function update(Request $request)
@@ -55,14 +55,14 @@ class CategoryController extends Controller
                 'duration' => 'integer',
             ]);
         } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->validator->errors()]);
+            return response()->json(['errors' => $e->validator->errors()], 400);
         }
 
         $category = Category::find($request->id);
 
         if (!$category) {
             return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-            'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Category'])]);  
+            'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Category'])], 404);  
         }
 
         $category-> update([
@@ -71,7 +71,7 @@ class CategoryController extends Controller
         ]);
 
         return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-        'message' => Lang::get('messages.alerts.message.update', ['table' => 'Category'])]);  
+        'message' => Lang::get('messages.alerts.message.update', ['table' => 'Category'])], 200);  
     }
 
     /**
@@ -89,13 +89,13 @@ class CategoryController extends Controller
             if(!$category){
                 Category::destroy($request->id);
                 return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-                'message' => Lang::get('messages.alerts.message.destroy', ['table' => 'Category'])]); 
+                'message' => Lang::get('messages.alerts.message.destroy', ['table' => 'Category'])], 204); 
             } else {
                 return response()->json(['title' => Lang::get('messages.alerts.title.warning'), 
-                'message' => Lang::get('messages.alerts.message.cancel', ['table' => 'Category'])]); 
+                'message' => Lang::get('messages.alerts.message.cancel', ['table' => 'Category'])], 200); 
             }
         }
         return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Category'])]); 
+        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Category'])], 404); 
     }
 }

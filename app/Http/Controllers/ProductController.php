@@ -25,14 +25,14 @@ class ProductController extends Controller
             $product->makeHidden(['image']);
         });
 
-        return response()->json(['products' => $products]);
+        return response()->json(['products' => $products], 200);
     }
 
     public function create()
     {
         $categories = Category::all();
 
-        return response()->json(['categories' => $categories]);
+        return response()->json(['categories' => $categories], 200);
     }
 
     public function store(Request $request)
@@ -83,7 +83,7 @@ class ProductController extends Controller
             DB::commit();
         
             return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-            'message' => Lang::get('messages.alerts.message.create', ['table' => 'Product'])]);
+            'message' => Lang::get('messages.alerts.message.create', ['table' => 'Product'])], 201);
 
         } catch (ValidationException $e) {
             DB::rollBack();
@@ -93,7 +93,7 @@ class ProductController extends Controller
             $errorMessages = implode('*', $errors);
 
             return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 400);
         }catch (\Exception $e) {
             DB::rollBack();
             return response()->json(json_decode($e->getMessage()));
@@ -121,7 +121,7 @@ class ProductController extends Controller
             if (!$product)
             {
                 return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-                'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Product'])]); 
+                'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Product'])], 404); 
             }
 
             $image_name = null;
@@ -155,7 +155,7 @@ class ProductController extends Controller
 
             DB::commit();
             return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-            'message' => Lang::get('messages.alerts.message.update', ['table' => 'Product'])]);        
+            'message' => Lang::get('messages.alerts.message.update', ['table' => 'Product'])], 200);        
             
         } catch (ValidationException $e) {
             DB::rollBack();
@@ -165,7 +165,7 @@ class ProductController extends Controller
             $errorMessages = implode('*', $errors);
 
             return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 400);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(json_decode($e->getMessage()));
@@ -187,15 +187,15 @@ class ProductController extends Controller
                 $this->destroyImage($product->image);
                 $product->delete();
                 return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-                'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Product'])]); 
+                'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Product'])], 204); 
             } else {
                 return response()->json(['title' => Lang::get('messages.alerts.title.warning'), 
-                'message' => Lang::get('messages.alerts.message.cancel', ['table' => 'Product'])]);          
+                'message' => Lang::get('messages.alerts.message.cancel', ['table' => 'Product'])], 204);          
             }
 
         }
         return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Category'])]); 
+        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Category'])], 404); 
     }
 
     private function saveImage($image)

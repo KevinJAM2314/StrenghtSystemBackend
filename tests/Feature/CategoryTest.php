@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Category;
 
@@ -19,7 +18,7 @@ class CategoryTest extends TestCase
 
     public function test_create_category()
     {
-        $category = $this->create_category();
+        $category = $this->create_category(true);
 
         $response = $this->postJson('/api/categories', $category);
         
@@ -28,7 +27,7 @@ class CategoryTest extends TestCase
 
     public function test_update_category()
     {
-        $category = $this->create_category();
+        $category = $this->create_category(false);
         $id = $this->last_id();
     
         $response = $this->putJson("/api/categories/{$id}", $category);
@@ -51,9 +50,18 @@ class CategoryTest extends TestCase
         return $lastCategory;
     }
 
-    private function create_category()
+    private function create_category($createOrUpdate)
     {
-        $category = Category::factory()->make()->getAttributes();
-        return $category;
+        $data =
+        [
+            'name' => 'Suplementos',
+            'duration' => null,
+        ];
+
+        if (!$createOrUpdate) {
+            $data['name'] = "Membresia Premium"; 
+            $data['duration'] = 365;
+        }
+        return $data;
     }
 }
