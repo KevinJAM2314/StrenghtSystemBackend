@@ -183,7 +183,7 @@ class ClientController extends Controller
         if(Person::find($request->id)){
             Person::destroy($request->id);
             return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-            'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Client'])], 204);
+            'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Client'])], 200);
         }
         return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
         'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Client'])], 404);
