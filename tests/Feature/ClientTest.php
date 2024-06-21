@@ -3,14 +3,12 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Person;
 use App\Models\Contact;
 
 class ClientTest extends TestCase
 {
-    use WithFaker; 
 
     public function test_list_clients()
     {
@@ -21,7 +19,7 @@ class ClientTest extends TestCase
 
     public function test_create_client()
     {
-        $client = $this->create_client();
+        $client = $this->create_client(true);
 
         $response = $this->postJson('/api/clients', $client);
         
@@ -30,14 +28,14 @@ class ClientTest extends TestCase
 
     public function test_update_client()
     {
-        $client = $this->create_client();
+        $client = $this->create_client(false);
         $id = $this->last_id();
     
         $response = $this->putJson("/api/clients/{$id}", $client);
     
         $response->assertOk();
     }
-    
+
     public function test_delete_client()
     {
         $id = $this->last_id();
@@ -47,28 +45,46 @@ class ClientTest extends TestCase
         $response->assertNoContent();
     }
     
-
     private function last_id()
     {   
         $lastPerson = Person::max('id');
         return $lastPerson;
     }
 
-    private function create_client()
+    private function create_client($createOrUpdate)
     {
-        $person = Person::factory()->make();
-        $contact = Contact::factory()->make();
-    
+        // Datos comunes
         $data = [
-            'person' => $person->getAttributes(),
+            'person' => [
+                'firstName' => "Luigi",
+                'secondName' => "Esteban",
+                'firstLastName' => "Moto",
+                'secondLastName' => "Solís",
+                'gender' => true,
+                'dateBirth' => "2020-6-17",
+            ],
             'contacts' => [
-                $contact->getAttributes()
+                [
+                    'value' => "luigi@example.com",
+                    'type_contact_id' => 1
+                ],
+                [
+                    'value' => "86452564",
+                    'type_contact_id' => 2
+                ]
             ],
             'direction' => [
-                'description' => substr($this->faker->text(), 0, 50),
-                'district_id' => $this->faker->randomElement([10101, 11911]),
+                'description' => "Calle Principal 123",
+                'district_id' => 20201
             ]
         ];
+
+        if (!$createOrUpdate) {
+            $data['person']['firstName'] = "Mario"; 
+            $data['contacts'][0]['value'] = "mario@example.com";
+        }
+
         return $data;
     }
+    
 }

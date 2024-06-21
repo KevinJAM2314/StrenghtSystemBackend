@@ -15,7 +15,7 @@ class UserController extends Controller
     {
         $users = User::where('confirmated', 0)->select('id', 'userName')->get();
 
-        return response()->json(['users' => $users]); 
+        return response()->json(['users' => $users], 200); 
     }
     
     public function store(Request $request)
@@ -38,7 +38,7 @@ class UserController extends Controller
             $errorMessages = implode('*', $errors);
 
             return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 400);
         }
 
         $person = Person::create([
@@ -58,7 +58,7 @@ class UserController extends Controller
         ]);
 
         return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-        'message' => Lang::get('messages.alerts.message.create', ['table' => 'User'])]); 
+        'message' => Lang::get('messages.alerts.message.create', ['table' => 'User'])], 201); 
     }
 
     public function verify(Request $request)
@@ -74,7 +74,7 @@ class UserController extends Controller
             $errorMessages = implode('*', $errors);
 
             return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 400);
         }
 
         $user = User::where('userName', $request->userName)->first();
@@ -88,7 +88,7 @@ class UserController extends Controller
             ]);
         } else {
             return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-            'message' => Lang::get('messages.alerts.message.error_verify', ['table' => 'User'])]);
+            'message' => Lang::get('messages.alerts.message.error_verify', ['table' => 'User'])], 400);
         }  
     }
 
@@ -99,10 +99,10 @@ class UserController extends Controller
             $user->confirmated = true;
             $user->save();
             return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-            'message' => Lang::get('messages.alerts.message.confirmated', ['table' => 'User'])]); 
+            'message' => Lang::get('messages.alerts.message.confirmated', ['table' => 'User'])], 200); 
         }
         return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'User'])]); 
+        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'User'])], 404); 
     }
 
     public function destroy(Request $request)
@@ -111,10 +111,10 @@ class UserController extends Controller
         if($user){
             $user->delete();
             return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-            'message' => Lang::get('messages.alerts.message.delete', ['table' => 'User'])]); 
+            'message' => Lang::get('messages.alerts.message.delete', ['table' => 'User'])], 204); 
         }
         return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'User'])]); 
+        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'User'])], 404); 
     }
 }
 

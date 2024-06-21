@@ -19,7 +19,7 @@ class SaleController extends Controller
     {
         $sales = Sale::with(['saleDetails.inventoryXProducts.product'])->get();
 
-        return response()->json(['sales' => $sales]); 
+        return response()->json(['sales' => $sales], 200); 
     }
 
     public function create()
@@ -68,7 +68,7 @@ class SaleController extends Controller
             $this->updateInvoice($invoiceId, $sale->totalAmount);
             DB::commit();
             return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-            'message' => Lang::get('messages.alerts.message.create', ['table' => 'Sale'])]); 
+            'message' => Lang::get('messages.alerts.message.create', ['table' => 'Sale'])], 201); 
         } catch (ValidationException $e) {
             DB::rollBack();
 
@@ -77,10 +77,11 @@ class SaleController extends Controller
             $errorMessages = implode('*', $errors);
 
             return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 400);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(json_decode($e->getMessage()));
+            // Agregar más detalles a la respuesta de error
+            return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 400);
         }
     }
 
