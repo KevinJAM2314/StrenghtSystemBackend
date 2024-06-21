@@ -89,7 +89,7 @@ class CategoryController extends Controller
             if(!$category){
                 Category::destroy($request->id);
                 return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-                'message' => Lang::get('messages.alerts.message.destroy', ['table' => 'Category'])], 204); 
+                'message' => Lang::get('messages.alerts.message.destroy', ['table' => 'Category'])], 200); 
             } else {
                 return response()->json(['title' => Lang::get('messages.alerts.title.warning'), 
                 'message' => Lang::get('messages.alerts.message.cancel', ['table' => 'Category'])], 200); 

@@ -187,10 +187,10 @@ class ProductController extends Controller
                 $this->destroyImage($product->image);
                 $product->delete();
                 return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-                'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Product'])], 204); 
+                'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Product'])], 200); 
             } else {
                 return response()->json(['title' => Lang::get('messages.alerts.title.warning'), 
-                'message' => Lang::get('messages.alerts.message.cancel', ['table' => 'Product'])], 204);          
+                'message' => Lang::get('messages.alerts.message.cancel', ['table' => 'Product'])], 200);          
             }
 
         }

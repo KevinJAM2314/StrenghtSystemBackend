@@ -42,7 +42,7 @@ class ClientTest extends TestCase
     
         $response = $this->deleteJson("/api/clients/{$id}");
     
-        $response->assertNoContent();
+        $response->assertOk();
     }
     
     private function last_id()

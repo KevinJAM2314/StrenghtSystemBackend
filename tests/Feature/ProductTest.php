@@ -45,7 +45,7 @@ class ProductTest extends TestCase
     
         $response = $this->deleteJson("/api/products/{$id}");
     
-        $response->assertNoContent();
+        $response->assertOk();
     }
 
     private function last_id()

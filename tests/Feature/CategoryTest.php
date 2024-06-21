@@ -41,7 +41,7 @@ class CategoryTest extends TestCase
     
         $response = $this->deleteJson("/api/categories/{$id}");
     
-        $response->assertNoContent();
+        $response->assertOk();
     }
 
     private function last_id()
