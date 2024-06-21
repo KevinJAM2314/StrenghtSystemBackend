@@ -119,6 +119,27 @@ class SaleDetailController extends Controller
         ]));   
     }
 
+    public function cancel (Request $request)
+    {      
+        $saleDetail = SaleDetail::find($request->id);
+        if($saleDetail){
+            $inventoryXProduct = InventoryXProduct::find($saleDetail->inventory_x_products_id);
+            if($inventoryXProduct){
+                $inventoryXProduct->update([
+                    'quantity' => $inventoryXProduct->quantity + $saleDetail->quantity
+                ]);
+            }else{
+                throw new \Exception(json_encode(['title' => Lang::get('messages.alerts.title.error'), 
+                'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Inventory'])
+                ]));   
+            }
+        } else {
+            throw new \Exception(json_encode(['title' => Lang::get('messages.alerts.title.error'), 
+            'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Sale Detail'])
+            ]));      
+        }
+    }
+
     private function calculateTotal($inventoryXProduct, $quantity)
     {
         

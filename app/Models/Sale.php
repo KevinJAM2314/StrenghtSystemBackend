@@ -11,6 +11,7 @@ class Sale extends Model
 
     protected $fillable = [
         'totalAmount',
+        'cancel',
         'person_id',
     ];
 
