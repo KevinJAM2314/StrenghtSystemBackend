@@ -58,8 +58,9 @@ Route::post('/sales', [SaleController::class, 'store']);
 Route::get('/sales', [SaleController::class, 'index']);
 Route::get('/sales/create', [SaleController::class, 'create']);
 Route::get('/sales/{id}', [SaleController::class, 'show']);
-Route::put('/sales/{id}', [SaleController::class, 'update']);
-Route::delete('/sales/{id}', [SaleController::class, 'destroy']);
+// Route::put('/sales/{id}', [SaleController::class, 'update']);
+// Route::delete('/sales/{id}', [SaleController::class, 'destroy']);
+Route::put('/sales/cancel', [SaleController::class, 'cancel']);
 
 // Sale Details
-Route::get('/saledetails', [SaleDetailController::class, 'show']);
+// Route::get('/saledetails', [SaleDetailController::class, 'show']);

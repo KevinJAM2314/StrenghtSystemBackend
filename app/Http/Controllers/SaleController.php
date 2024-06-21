@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\InventoryXProduct;
 use App\Http\Controllers\SaleDetailController;
 use App\Models\Invoice;
+use App\Models\SaleDetail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 
@@ -123,6 +124,10 @@ class SaleController extends Controller
 
             return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
             'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
+        }  catch (\Exception $e) {
+            DB::rollBack();
+            // Agregar más detalles a la respuesta de error
+            return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 400);
         }
     }
 
@@ -135,6 +140,53 @@ class SaleController extends Controller
         }
         return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
         'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Sale'])]); 
+    }
+
+    public function cancel (Request $request)
+    {   
+        try {
+            $request->validate([
+                'id' => 'required|integer|exists:sales,id'
+            ]);
+
+            $sale = Sale::find($request->id);
+            if($sale){
+                DB::beginTransaction();
+
+                $this->cancelSaleDetails($sale->id);
+                $sale->update([
+                    'cancel' => True
+                ]);
+
+                DB::commit();
+                return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
+                'message' => Lang::get('messages.alerts.message.update', ['table' => 'Sale'])]); 
+            }
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+            'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Sale'])]); 
+        } catch (ValidationException $e){
+            DB::rollBack();
+            
+            $errors = $e->validator->errors()->all();
+            
+            $errorMessages = implode('*', $errors);
+
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
+        }
+    }
+
+    private function cancelSaleDetails($saleId)
+    {
+        $saleDetails = SaleDetail::where('sale_id', $saleId)->select('id', 'sale_id')->get();
+        $saleDetailController = app(SaleDetailController::class);
+        foreach ($saleDetails as $detail) 
+        {
+            $detail;
+            $saleDetailController->cancel(new Request([
+                'id' => $detail->id
+            ]));
+        }
     }
 
     private function saleDetails($request, $sale_id=null, $invoiceId=null)

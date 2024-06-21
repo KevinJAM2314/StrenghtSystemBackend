@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
             $table->decimal('totalAmount', 8, 2);
+            $table->boolean('cancel')->default(False);
             $table->timestamps();
-            $table->foreignId('person_id')->constrained();
+            $table->foreignId('person_id')->constrained()->onDelete('cascade');
         });
     }
 
