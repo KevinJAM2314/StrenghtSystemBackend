@@ -13,7 +13,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::where('confirmated', 1)->select('id', 'userName')->get();
+        $users = User::where('confirmated', 0)->select('id', 'userName')->get();
 
         return response()->json(['users' => $users], 200);
     }
@@ -74,21 +74,26 @@ class UserController extends Controller
             $errorMessages = implode('*', $errors);
 
             return response()->json(['title' => Lang::get('messages.alerts.title.error'),
-            'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 400);
+                'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 400);
         }
 
         $user = User::where('userName', $request->userName)->first();
 
-        if (auth()->attempt($request->only('userName', 'password'), $request->remember) || $user->confirmated) {
-            $token = $user->createToken('auth_token')->plainTextToken;
-            return response()->json([
-                'message' => 'Credenciales correctas',
-                'userName' => $user->userName,
-                'token' => $token
-            ]);
+        if ($user && Hash::check($request->password, $user->password)) {
+            if ($user->confirmated) {
+                $token = $user->createToken('auth_token')->plainTextToken;
+                return response()->json([
+                    'message' => 'Credenciales correctas',
+                    'userName' => $user->userName,
+                    'token' => $token
+                ]);
+            } else {
+                return response()->json(['title' => Lang::get('messages.alerts.title.error'),
+                    'message' => 'Your account is not activated. Please activate your account to proceed.'], 400);
+            }
         } else {
             return response()->json(['title' => Lang::get('messages.alerts.title.error'),
-            'message' => Lang::get('messages.alerts.message.error_verify', ['table' => 'User'])], 400);
+                'message' => 'Incorrect email or password.'], 401);
         }
     }
 
