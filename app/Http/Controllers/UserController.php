@@ -93,7 +93,7 @@ class UserController extends Controller
             }
         } else {
             return response()->json(['title' => Lang::get('messages.alerts.title.error'),
-                'message' => 'Incorrect email or password.'], 401);
+                'message' => 'Incorrect user or password.'], 401);
         }
     }
 
