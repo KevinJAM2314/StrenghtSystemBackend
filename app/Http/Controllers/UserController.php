@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -61,6 +62,94 @@ class UserController extends Controller
         'message' => Lang::get('messages.alerts.message.create', ['table' => 'User'])], 201);
     }
 
+    public function update(Request $request)
+    {
+        $request->request->add(['user.userName' => Str::slug($request->user['userName'])]);
+        
+        try {
+            $this->validate($request, [
+                'person.firstName' => 'required|string|max:20',
+                'person.secondName' => 'nullable|max:20',
+                'person.firstLastName' => 'required|string|max:20',
+                'person.secondLastName' => 'nullable|max:20',
+                'person.gender' => 'required|boolean',
+                'person.dateBirth' => 'nullable|date|before:today',
+                'user.userName' => 'required|string|min:3|max:20',
+                'user.password' => 'nullable|string|min:6' // Cambiado a nullable
+            ]);
+        } catch (ValidationException $e) {
+            $errors = $e->validator->errors()->all();
+            $errorMessages = implode('*', $errors);
+    
+            return response()->json([
+                'title' => Lang::get('messages.alerts.title.error'),
+                'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])
+            ], 400);
+        }
+    
+        $person = Person::find($request->id);
+    
+        if (!$person) {
+            return response()->json([
+                'title' => Lang::get('messages.alerts.title.error'), 
+                'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'User'])
+            ], 404);
+        }
+    
+        // Iniciar transacción
+        DB::beginTransaction();
+        
+        try {
+            // Actualizar los datos de la persona
+            $person->update([
+                'firstName' => $request->person['firstName'],
+                'secondName' => $request->person['secondName'] ?? null,
+                'firstLastName' => $request->person['firstLastName'],
+                'secondLastName' => $request->person['secondLastName'] ?? null,
+                'gender' => $request->person['gender'],
+                'dateBirth' => $request->person['dateBirth'] ?? null,
+                'type_person_id' => 1
+            ]);
+    
+            // Buscar el usuario
+            $user = User::where('person_id', $request->id)->first();
+    
+            // Preparar los datos a actualizar
+            $userData = [];
+            
+            // Si el nombre de usuario es diferente, agregarlo a los datos a actualizar
+            if ($user->userName !== $request->user['userName']) {
+                $userData['userName'] = $request->user['userName'];
+            }
+    
+            // Si la contraseña no está en blanco, agregarla a los datos a actualizar
+            if (!empty($request->user['password'])) {
+                $userData['password'] = Hash::make($request->user['password']);
+            }
+    
+            // Actualizar los datos del usuario si hay algo que actualizar
+            if (!empty($userData)) {
+                $user->update($userData);
+            }
+    
+            // Confirmar la transacción
+            DB::commit();
+    
+            return response()->json([
+                'title' => Lang::get('messages.alerts.title.success'),
+                'message' => Lang::get('messages.alerts.message.update', ['table' => 'User'])
+            ], 201);
+        } catch (\Exception $e) {
+            // Deshacer la transacción en caso de error
+            DB::rollBack();
+            return response()->json([
+                'title' => Lang::get('messages.alerts.title.error'),
+                'message' => Lang::get('messages.alerts.message', ['table' => 'User']),
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
     public function verify(Request $request)
     {
         try {
@@ -85,7 +174,8 @@ class UserController extends Controller
                 return response()->json([
                     'message' => 'Credenciales correctas',
                     'userName' => $user->userName,
-                    'token' => $token
+                    'token' => $token,
+                    'id' => $user->id,
                 ]);
             } else {
                 return response()->json(['title' => Lang::get('messages.alerts.title.error'),
@@ -96,6 +186,20 @@ class UserController extends Controller
                 'message' => 'Incorrect user or password.'], 401);
         }
     }
+
+    public function show(Request $request)
+    {
+        $userInfo = User::where('id', $request->id)->select('userName','created_at', 'person_id')->first();
+    
+        if (!$userInfo) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        $person = Person::where('id', $userInfo->person_id)->first();
+
+        return response()->json(['user' => $userInfo, 'person' => $person], 200);
+    }
+    
 
     public function confirmated(Request $request)
     {
