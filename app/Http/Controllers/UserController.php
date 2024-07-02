@@ -77,7 +77,7 @@ class UserController extends Controller
                 'user.userName' => 'required|string|min:3|max:20',
                 'user.password' => 'required|string|min:6',
                 'user.newPass' => 'nullable|string|min:6',
-                'user.newPassConfirm' => 'nullable|string|min:6|same:user.newPass',
+                'user.newPassConfirm' => 'nullable|string|min:6',
             ]);
         } catch (ValidationException $e) {
             $errors = $e->validator->errors()->all();
