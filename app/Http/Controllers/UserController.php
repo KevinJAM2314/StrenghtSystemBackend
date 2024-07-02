@@ -121,7 +121,7 @@ class UserController extends Controller
                 return response()->json([
                     'title' => Lang::get('messages.alerts.title.error'),
                     'message' => Lang::get('messages.alerts.message.invalid_password')
-                ], 400);
+                ], 200);
             }
 
             // Preparar los datos a actualizar
@@ -136,7 +136,7 @@ class UserController extends Controller
                 return response()->json([
                     'title' => Lang::get('messages.alerts.title.error'),
                     'message' => Lang::get('messages.alerts.message.new_password_diferent')
-                ], 400);
+                ], 200);
             }
 
             // Si la nueva contraseña y la confirmación coinciden, agregar la nueva contraseña a los datos a actualizar
