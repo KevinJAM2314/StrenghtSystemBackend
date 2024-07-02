@@ -75,27 +75,29 @@ class UserController extends Controller
                 'person.gender' => 'required|boolean',
                 'person.dateBirth' => 'nullable|date|before:today',
                 'user.userName' => 'required|string|min:3|max:20',
-                'user.password' => 'nullable|string|min:6' // Cambiado a nullable
+                'user.password' => 'required|string|min:6',
+                'user.newPass' => 'nullable|string|min:6',
+                'user.newPassConfirm' => 'nullable|string|min:6|same:user.newPass',
             ]);
         } catch (ValidationException $e) {
             $errors = $e->validator->errors()->all();
             $errorMessages = implode('*', $errors);
-    
+
             return response()->json([
                 'title' => Lang::get('messages.alerts.title.error'),
                 'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])
             ], 400);
         }
-    
+
         $person = Person::find($request->id);
-    
+
         if (!$person) {
             return response()->json([
                 'title' => Lang::get('messages.alerts.title.error'), 
                 'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'User'])
             ], 404);
         }
-    
+
         // Iniciar transacción
         DB::beginTransaction();
         
@@ -110,10 +112,18 @@ class UserController extends Controller
                 'dateBirth' => $request->person['dateBirth'] ?? null,
                 'type_person_id' => 1
             ]);
-    
+
             // Buscar el usuario
             $user = User::where('person_id', $request->id)->first();
-    
+
+            // Validar la contraseña actual
+            if (!Hash::check($request->user['password'], $user->password)) {
+                return response()->json([
+                    'title' => Lang::get('messages.alerts.title.error'),
+                    'message' => Lang::get('messages.alerts.message.invalid_password')
+                ], 400);
+            }
+
             // Preparar los datos a actualizar
             $userData = [];
             
@@ -121,20 +131,27 @@ class UserController extends Controller
             if ($user->userName !== $request->user['userName']) {
                 $userData['userName'] = $request->user['userName'];
             }
-    
-            // Si la contraseña no está en blanco, agregarla a los datos a actualizar
-            if (!empty($request->user['password'])) {
-                $userData['password'] = Hash::make($request->user['password']);
+
+            if(!empty($request->user['newPass']) && $request->user['newPass'] !== $request->user['newPassConfirm']) {
+                return response()->json([
+                    'title' => Lang::get('messages.alerts.title.error'),
+                    'message' => Lang::get('messages.alerts.message.new_password_diferent')
+                ], 400);
             }
-    
+
+            // Si la nueva contraseña y la confirmación coinciden, agregar la nueva contraseña a los datos a actualizar
+            if (!empty($request->user['newPass']) && $request->user['newPass'] === $request->user['newPassConfirm']) {
+                $userData['password'] = Hash::make($request->user['newPass']);
+            }
+
             // Actualizar los datos del usuario si hay algo que actualizar
             if (!empty($userData)) {
                 $user->update($userData);
             }
-    
+
             // Confirmar la transacción
             DB::commit();
-    
+
             return response()->json([
                 'title' => Lang::get('messages.alerts.title.success'),
                 'message' => Lang::get('messages.alerts.message.update', ['table' => 'User'])
@@ -149,7 +166,7 @@ class UserController extends Controller
             ], 500);
         }
     }
-    
+
     public function verify(Request $request)
     {
         try {
