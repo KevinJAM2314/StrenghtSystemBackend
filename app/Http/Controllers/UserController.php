@@ -179,11 +179,11 @@ class UserController extends Controller
                 ]);
             } else {
                 return response()->json(['title' => Lang::get('messages.alerts.title.error'),
-                    'message' => 'Your account is not activated. Please activate your account to proceed.'], 400);
+                    'message' => Lang::get('messages.alerts.message.not_confirmated')], 400);
             }
         } else {
             return response()->json(['title' => Lang::get('messages.alerts.title.error'),
-                'message' => 'Incorrect user or password.'], 401);
+                'message' => Lang::get('messages.alerts.message.error_verify')], 401);
         }
     }
 
