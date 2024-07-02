@@ -17,8 +17,11 @@ return [
             'cancel' => ':table cannot be deleted',
             'not_enough_quantity' => 'There is not enough :table',
             'confirmated' => ':table confirmed',
-            'error_verify' => 'Incorrect credentials or the account is not confirmed',  
-            'error' => ':error'
+            'not_confirmated' => 'Your account is not activated. Please activate your account to proceed',
+            'error_verify' => 'Incorrect user or password',  
+            'error' => ':error',
+            'invalid_password' => 'Incorrect password',
+            'new_password_diferent' => 'New password does not match'
         ]
     ]
 ];
