@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             TypePersonSeeder::class,
             GeoSeeder::class,
             InventorySeeder::class,
+            UserSeeder::class,
         ]);
     }
 }
