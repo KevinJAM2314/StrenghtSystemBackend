@@ -6,6 +6,8 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Validation\ValidationException;
+use App\Http\Controllers\ProductController;
+use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
@@ -79,21 +81,66 @@ class CategoryController extends Controller
      */
     public function destroy(Request $request)
     {
-        if(Category::find($request->id)){
+        $category = Category::find($request->id);
+        if($category){
             $categorySale = Category::whereHas('productXcategories', function ($query) use ($request) {
                 $query->where('id', $request->id);
             })->with('productXcategories.product.inventoryXProducts.saleDetail')->first();
 
             if($categorySale){
-                $category = $categorySale->productXcategories[0]->product->inventoryXProducts[0]->saleDetail->isNotEmpty();
+                $categoryisSale = $categorySale->productXcategories[0]->product->inventoryXProducts[0]->saleDetail->isNotEmpty();
             } else {
-                $category = FALSE;
+                $categoryisSale = FALSE;
             }
 
-            if(!$category){
-                Category::destroy($request->id);
-                return response()->json(['title' => Lang::get('messages.alerts.title.success'),
-                'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Category'])], 200);
+            if(!$categoryisSale){
+                try {
+                    DB::beginTransaction();
+    
+                    // Obtener los IDs de productos asociados a la categoría
+                    $productsToDelete = Category::whereHas('productXcategories', function ($query) use ($request) {
+                        $query->where('id', $request->id);
+                    })->with('productXcategories')->get()
+                    ->pluck('productXcategories.*.product_id')
+                    ->flatten()
+                    ->toArray();
+    
+                    $productController = app(ProductController::class);
+    
+                    foreach ($productsToDelete as $id) {
+                        try {
+                            $response = $productController->destroy(new Request(['id' => $id]));
+    
+                            if ($response->getStatusCode() !== 200) {
+                                // Si la eliminación del producto falla, revertir la transacción
+                                DB::rollBack();
+                                return response()->json([
+                                    'error' => "Failed to delete product with ID: $id",
+                                ], 500);
+                            }
+                        } catch (\Exception $e) {
+                            DB::rollBack();
+                            return response()->json([
+                                'error' => "Failed to delete product with ID: $id. Error: " . $e->getMessage(),
+                            ], 500);
+                        }
+                    }
+                    
+                    // Eliminar la categoría
+                    $category->delete();
+    
+                    DB::commit();
+    
+                    return response()->json([
+                        'title' => Lang::get('messages.alerts.title.success'),
+                        'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Category']),
+                    ], 200);
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    return response()->json([
+                        'error' => "Failed to delete category. Error: " . $e->getMessage(),
+                    ], 500);
+                }
             } else {
                 return response()->json(['title' => Lang::get('messages.alerts.title.warning'),
                 'message' => Lang::get('messages.alerts.message.cancel', ['table' => 'Category'])], 200);
