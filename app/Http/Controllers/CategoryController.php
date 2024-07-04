@@ -24,10 +24,10 @@ class CategoryController extends Controller
             ]);
         } catch (ValidationException $e) {
             $errors = $e->validator->errors()->all();
-            
+
             $errorMessages = implode('*', $errors);
 
-            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'),
             'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 400);
         }
 
@@ -36,15 +36,15 @@ class CategoryController extends Controller
             'duration' => $request->duration ?? null,
         ]);
 
-        return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-        'message' => Lang::get('messages.alerts.message.create', ['table' => 'Category'])], 201); 
+        return response()->json(['title' => Lang::get('messages.alerts.title.success'),
+        'message' => Lang::get('messages.alerts.message.create', ['table' => 'Category'])], 201);
     }
 
     public function show(Request $request)
     {
         $category = Category::where('id', $request->id)->select('id', 'name', 'duration')->get();
 
-        return response()->json(['category' => $category], 200); 
+        return response()->json(['category' => $category], 200);
     }
 
     public function update(Request $request)
@@ -61,8 +61,8 @@ class CategoryController extends Controller
         $category = Category::find($request->id);
 
         if (!$category) {
-            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-            'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Category'])], 404);  
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'),
+            'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Category'])], 404);
         }
 
         $category-> update([
@@ -70,8 +70,8 @@ class CategoryController extends Controller
             'duration' => $request->duration ?? null,
         ]);
 
-        return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-        'message' => Lang::get('messages.alerts.message.update', ['table' => 'Category'])], 200);  
+        return response()->json(['title' => Lang::get('messages.alerts.title.success'),
+        'message' => Lang::get('messages.alerts.message.update', ['table' => 'Category'])], 200);
     }
 
     /**
@@ -84,18 +84,22 @@ class CategoryController extends Controller
                 $query->where('id', $request->id);
             })->with('productXcategories.product.inventoryXProducts.saleDetail')->first();
 
-            $category = $categorySale->productXcategories[0]->product->inventoryXProducts[0]->saleDetail->isNotEmpty();
+            if($categorySale){
+                $category = $categorySale->productXcategories[0]->product->inventoryXProducts[0]->saleDetail->isNotEmpty();
+            } else {
+                $category = FALSE;
+            }
 
             if(!$category){
                 Category::destroy($request->id);
-                return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-                'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Category'])], 200); 
+                return response()->json(['title' => Lang::get('messages.alerts.title.success'),
+                'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Category'])], 200);
             } else {
-                return response()->json(['title' => Lang::get('messages.alerts.title.warning'), 
-                'message' => Lang::get('messages.alerts.message.cancel', ['table' => 'Category'])], 200); 
+                return response()->json(['title' => Lang::get('messages.alerts.title.warning'),
+                'message' => Lang::get('messages.alerts.message.cancel', ['table' => 'Category'])], 200);
             }
         }
-        return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
-        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Category'])], 404); 
+        return response()->json(['title' => Lang::get('messages.alerts.title.error'),
+        'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Category'])], 404);
     }
 }

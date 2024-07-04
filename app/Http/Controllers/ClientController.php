@@ -20,7 +20,7 @@ class ClientController extends Controller
         $clients = Person::where('type_person_id', 2)
                 ->with(['contacts','directions.district.canton.province'])->select('id', 'firstName', 'secondName', 'firstLastName', 'secondLastName', 'gender', 'dateBirth')
                 ->get();
-        
+
         // Obtener la duración máxima desde las membresías
         $maxDuration = Category::max('duration');
 
@@ -47,7 +47,7 @@ class ClientController extends Controller
     {
         $provinces = Geo::where('geo_id', null)->select('id', 'description')->get();
 
-        return response()->json(['provinces' => $provinces]); 
+        return response()->json(['provinces' => $provinces]);
 
     }
 
@@ -61,7 +61,7 @@ class ClientController extends Controller
             $canton = Geo::where('id', $district->geo_id)->first();
             $province = Geo::where('id', $canton->geo_id)->first();
 
-            return response()->json(['client' => $client, 'province' => $province, 'canton' => $canton, 'district' => $district]);    
+            return response()->json(['client' => $client, 'province' => $province, 'canton' => $canton, 'district' => $district]);
         }
         return response()->json(['client' => $client]);
     }
@@ -84,12 +84,12 @@ class ClientController extends Controller
             ]);
         } catch (ValidationException $e) {
             $errors = $e->validator->errors()->all();
-            
+
             $errorMessages = implode('*', $errors);
-            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'),
             'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])], 201);
         }
-        
+
         $client = Person::create([
             'firstName' => $request->person['firstName'],
             'secondName' => $request->person['secondName'],
@@ -115,8 +115,8 @@ class ClientController extends Controller
             'person_id' => $client->id
         ]);
 
-        return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
-        'message' => Lang::get('messages.alerts.message.create', ['table' => 'Client'])], 201); 
+        return response()->json(['title' => Lang::get('messages.alerts.title.success'),
+        'message' => Lang::get('messages.alerts.message.create', ['table' => 'Client'])], 201);
     }
 
     public function update(Request $request)
@@ -131,22 +131,22 @@ class ClientController extends Controller
                 'person.dateBirth' => 'nullable|date|before:today',
                 'contacts' => 'required|array',
                 'contacts.*.value' => 'required|string|max:30',
-                'contacts.*._contact_id' => 'required|exists:_contacts,id',
+                'contacts.*.contact_id' => 'required|exists:contacts,id',
                 'direction.description' => 'required|string|max:50',
                 'direction.district_id' => 'required|exists:geos,id',
             ]);
         } catch (ValidationException $e) {
             $errors = $e->validator->errors()->all();
-            
+
             $errorMessages = implode('*', $errors);
-            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'),
             'message' => Lang::get('messages.alerts.message.error', ['error' => $errorMessages])]);
         }
 
         $client = Person::find($request->id);
 
         if (!$client) {
-            return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+            return response()->json(['title' => Lang::get('messages.alerts.title.error'),
             'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Client'])], 404);
         }
 
@@ -163,7 +163,7 @@ class ClientController extends Controller
         foreach ($request->contacts as $contact)
         {
             Contact::where('person_id', $client->id)
-            ->where('_contact_id', $contact['_contact_id'])
+            ->where('id', $contact['contact_id'])
             ->update(['value' => $contact['value']]);
         }
 
@@ -174,21 +174,21 @@ class ClientController extends Controller
               'geo_id' => $request->direction['district_id']
           ]);
 
-          return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
+          return response()->json(['title' => Lang::get('messages.alerts.title.success'),
           'message' => Lang::get('messages.alerts.message.update', ['table' => 'Client'])], 201);
     }
 
     public function destroy(Request $request)
-    {      
+    {
         if(Person::find($request->id)){
             Person::destroy($request->id);
-            return response()->json(['title' => Lang::get('messages.alerts.title.success'), 
+            return response()->json(['title' => Lang::get('messages.alerts.title.success'),
             'message' => Lang::get('messages.alerts.message.delete', ['table' => 'Client'])], 200);
         }
-        return response()->json(['title' => Lang::get('messages.alerts.title.error'), 
+        return response()->json(['title' => Lang::get('messages.alerts.title.error'),
         'message' => Lang::get('messages.alerts.message.not_found', ['table' => 'Client'])], 404);
     }
-    
+
     private function validateMembership($memberships)
     {
         // Arreglo para almacenar resultados
@@ -200,18 +200,18 @@ class ClientController extends Controller
             $personId = $membership->person_id;
 
             $createdAt = Carbon::parse($membership->created_at);
-            
+
             $totalDuration = 0;
 
             foreach ($membership->saleDetailsM as $saleDetail) {
                 foreach ($saleDetail->inventoryXProductsM->productM->productXCategory as $productXCategory) {
                     if ($productXCategory->categoryM) {
-                        $totalDuration += $productXCategory->categoryM->duration; 
-                        
+                        $totalDuration += $productXCategory->categoryM->duration;
+
                         break;
                     }
                 }
-            }            
+            }
 
             if (isset($results[$personId])) {
 
@@ -219,10 +219,10 @@ class ClientController extends Controller
             } else {
                 // Calcular fecha límite sumando la duración a la fecha de creación
                 $endDate = $createdAt->copy()->addDays($totalDuration);
-                
+
                 // Calcular diferencia de días entre fecha límite y fecha actual
                 $differenceInDays = $currentDate->diffInDays($endDate, false);
-                
+
                 // Si no existe, crear un nuevo resultado para este person_id
                 $results[$personId] = max(0, $differenceInDays);
             }
